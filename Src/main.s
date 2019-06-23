@@ -50,9 +50,6 @@ COP_Disable:
  *
  * Argument:  None
  * Return:    None
- *
- * TODO: Figure out why program hands at return.
- * Look into using stack correctly and byte aligning.
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb
@@ -61,8 +58,9 @@ COP_Disable:
   .type PORTA_Init, %function
   .global PORTA_Init
 PORTA_Init:
-  /* Enable clock gating */
+  push  {LR}
 
+  /* Enable clock gating */
   /*
   ldr   r4, =SIM
   ldr   r5, =SIM_SCGC6
@@ -78,7 +76,8 @@ PORTA_Init:
   bl    NVIC_SetPriority
   bl    NVIC_ClearPendingIRQ
   bl    NVIC_EnableIRQ
-  bx    lr
+
+  pop   {PC}
 
 
   .end
