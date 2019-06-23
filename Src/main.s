@@ -25,7 +25,7 @@ loop:
  * Disable Computer Operating Properly aka
  * Watchdog Timer to avoid reset loop.
  *
- * Registers modified: r4, r5, r6
+ * Registers modified: r4, r5
  *
  * Argument:  None
  * Return:    None
@@ -37,10 +37,9 @@ loop:
   .type COP_Disable, %function
   .global COP_Disable
 COP_Disable:
-  ldr   r4, =SIM        /* Load address to register */
-  ldr   r5, =SIM_COPC   /* Load COPC offset to regiser */
-  movs  r6, #0          /* Clear register */
-  str   r6, [r4, r5]    /* Write 0 SIM + COPC offset */
+  ldr   r4, =SIM_COPC             /* Load address to register */
+  movs  r5, #0                    /* Clear register */
+  str   r5, [r4]                  /* Write 0 SIM + COPC offset */
   bx    lr
 
 
@@ -51,6 +50,9 @@ COP_Disable:
  *
  * Argument:  None
  * Return:    None
+ *
+ * TODO: Figure out why program hands at return.
+ * Look into using stack correctly and byte aligning.
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb
@@ -59,6 +61,17 @@ COP_Disable:
   .type PORTA_Init, %function
   .global PORTA_Init
 PORTA_Init:
+  /* Enable clock gating */
+
+  /*
+  ldr   r4, =SIM
+  ldr   r5, =SIM_SCGC6
+  ldr   r6, =SIM_SCGC6_MASK
+  ldr   r7, [r4, r5]
+  orrs  r7, r6
+  str   r7, [r4, r5]
+  */
+
   /* Initialize PORTA EXTI */
   movs  r0, #PORTA_IRQn           /* Load interrupt vector position */
   ldr   r1, =NVIC_IPRn_LEVEL1     /* Load interrupt priority */
@@ -66,3 +79,6 @@ PORTA_Init:
   bl    NVIC_ClearPendingIRQ
   bl    NVIC_EnableIRQ
   bx    lr
+
+
+  .end
