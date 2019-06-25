@@ -15,9 +15,13 @@
   .global _start
 _start:
   bl    COP_Disable
-  bl    PORTA_Init
+  bl    PORTB_Init
+
+  movs  r4, #(1 << 0)
+  ldr   r5, =GPIOB_PTOR
 
 loop:
+  str   r4, [r5]
   b     loop
 
 
@@ -41,43 +45,6 @@ COP_Disable:
   movs  r5, #0                    /* Clear register */
   str   r5, [r4]                  /* Write 0 SIM + COPC offset */
   bx    lr
-
-
-/**
- * Enable PORTA clock and interrupts.
- *
- * Registers modified: r0, r1, r4, r5, r6, r7
- *
- * Argument:  None
- * Return:    None
- */
-  .eabi_attribute Tag_ABI_align_preserved, 1
-  .thumb
-  .text
-  .thumb_func
-  .type PORTA_Init, %function
-  .global PORTA_Init
-PORTA_Init:
-  push  {LR}
-
-  /* Enable clock gating */
-  /*
-  ldr   r4, =SIM
-  ldr   r5, =SIM_SCGC6
-  ldr   r6, =SIM_SCGC6_MASK
-  ldr   r7, [r4, r5]
-  orrs  r7, r6
-  str   r7, [r4, r5]
-  */
-
-  /* Initialize PORTA EXTI */
-  movs  r0, #PORTA_IRQn           /* Load interrupt vector position */
-  ldr   r1, =NVIC_IPRn_LEVEL1     /* Load interrupt priority */
-  bl    NVIC_SetPriority
-  bl    NVIC_ClearPendingIRQ
-  bl    NVIC_EnableIRQ
-
-  pop   {PC}
 
 
   .end
