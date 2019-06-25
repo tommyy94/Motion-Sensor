@@ -89,11 +89,10 @@ NVIC_ClearPendingIRQ:
 NVIC_SetPriority:
   push  {r4-r7, LR}               /* Prologue */
 
-
   /* Store NVIC_IPRn register in r4 */
   ldr   r4, =NVIC_IP              /* Load NVIC Interrupt Priority to register */
   adds  r4, r4, r0                /* Add IRQn offset */
-  subs  r4, r4, #2                /* Subtract magic offset */
+  subs  r4, r4, #3                /* Subtract magic offset */
 
   /* Store NVIC_IPRn byte position in r5 */
   ldr   r5, =NVIC_LookupTable     /* Load lookup table address */
