@@ -79,8 +79,6 @@ NVIC_ClearPendingIRQ:
  * Argument:  r0 - Interrupt vector
  * Argument:  r1 - Interrupt priority
  * Return:    None
- *
- * TODO: Figure out the magic offset
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb_func
@@ -91,8 +89,9 @@ NVIC_SetPriority:
 
   /* Store NVIC_IPRn register in r4 */
   ldr   r4, =NVIC_IP              /* Load NVIC Interrupt Priority to register */
-  adds  r4, r4, r0                /* Add IRQn offset */
-  subs  r4, r4, #3                /* Subtract magic offset */
+  ldr   r5, =DWAlignmentTable     /* Load lookup table address */
+  ldrb  r5, [r5, r0]
+  adds  r4, r5                    /* Add IRQn offset */
 
   /* Store NVIC_IPRn byte position in r5 */
   ldr   r5, =NVIC_LookupTable     /* Load lookup table address */
