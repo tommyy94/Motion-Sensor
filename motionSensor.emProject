@@ -37,6 +37,7 @@
       <configuration Name="Common" filter="c;cpp;cxx;cc;h;s;asm;inc" />
       <file file_name="Src/main.s" />
       <file file_name="Src/NVIC.s" />
+      <file file_name="Src/IO.s" />
     </folder>
     <folder Name="System Files">
       <configuration
