@@ -39,7 +39,7 @@ PORTB_Init:
   movs  r5, #(1 << 0)             /* Load PTB0 */
   str   r5, [r4]                  /* Write output pin */
 
-  /* Initialize PORTA NVIC */
+  /* Initialize PORTB NVIC */
   movs  r0, #PORTB_IRQn           /* Load interrupt vector position */
   ldr   r1, =NVIC_IPRn_LEVEL1     /* Load interrupt priority */
   bl    NVIC_SetPriority
