@@ -36,10 +36,10 @@
 #define PORT_PCR_DSE_SHIFT    (6)
 #define PORT_PCR_MUX_MASK     (0x700u)
 #define PORT_PCR_MUX_SHIFT    (8)
-#define PORT_PCR_MUX(x)       (((((x))<<PORT_PCR_MUX_SHIFT))&PORT_PCR_MUX_MASK)
+#define PORT_PCR_MUX(x)       ((((x)<<PORT_PCR_MUX_SHIFT))&PORT_PCR_MUX_MASK)
 #define PORT_PCR_IRQC_MASK    (0xF0000u)
 #define PORT_PCR_IRQC_SHIFT   (16)
-#define PORT_PCR_IRQC(x)      (((((x))<<PORT_PCR_IRQC_SHIFT))&PORT_PCR_IRQC_MASK)
+#define PORT_PCR_IRQC(x)      ((((x)<<PORT_PCR_IRQC_SHIFT))&PORT_PCR_IRQC_MASK)
 #define PORT_PCR_ISF_MASK     (0x1000000u)
 #define PORT_PCR_ISF_SHIFT    (24)
 
@@ -48,22 +48,22 @@
 #define PORTB_ISFR            (PORTB + 0xA0)
 #define PORT_ISFR_ISF_MASK    (0xFFFFFFFFu)
 #define PORT_ISFR_ISF_SHIFT   (0)
-#define PORT_ISFR_ISF(x)      (((((x))<<PORT_ISFR_ISF_SHIFT))&PORT_ISFR_ISF_MASK)
+#define PORT_ISFR_ISF(x)      ((((x)<<PORT_ISFR_ISF_SHIFT))&PORT_ISFR_ISF_MASK)
 
-/* Peripheral GPIOA base address */
-#define GPIOA                 (0x400FF000u)                 /* GPIOA Base Address */
-#define GPIOB                 (0x400FF040u)                 /* GPIOB Base Address */
+/* Peripheral FPTA base address */
+#define FPTA                  (0xF80FF000u)                  /* FPTA Base Address */
+#define FTPB                  (0xF80FF040u)                  /* FPTB Base Address */
 
-#define GPIOA_PDOR            (GPIOA + 0x00u)               /* Port Data Output Register */
-#define GPIOA_PSOR            (GPIOA + 0x04u)               /* Port Set Output Register */
-#define GPIOA_PCOR            (GPIOA + 0x08u)               /* Port Clear Output Register */
-#define GPIOA_PTOR            (GPIOA + 0x0Cu)               /* Port Toggle Output Register */
-#define GPIOA_PDIR            (GPIOA + 0x10u)               /* Port Data Input Register */
-#define GPIOA_PDDR            (GPIOA + 0x14u)               /* Port Data Direction Register */
+#define FPTA_PDOR             (FPTA + 0x00u)                 /* Port Data Output Register */
+#define FPTA_PSOR             (FPTA + 0x04u)                 /* Port Set Output Register */
+#define FPTA_PCOR             (FPTA + 0x08u)                 /* Port Clear Output Register */
+#define FPTA_PTOR             (FPTA + 0x0Cu)                 /* Port Toggle Output Register */
+#define FPTA_PDIR             (FPTA + 0x10u)                 /* Port Data Input Register */
+#define FPTA_PDDR             (FPTA + 0x14u)                 /* Port Data Direction Register */
   
-#define GPIOB_PDOR            (GPIOB + 0x00u)               /* Port Data Output Register */
-#define GPIOB_PSOR            (GPIOB + 0x04u               /* Port Set Output Register */
-#define GPIOB_PCOR            (GPIOB + 0x08u)               /* Port Clear Output Register */
-#define GPIOB_PTOR            (GPIOB + 0x0Cu)               /* Port Toggle Output Register */
-#define GPIOB_PDIR            (GPIOB + 0x10u)               /* Port Data Input Register */
-#define GPIOB_PDDR            (GPIOB + 0x14u)               /* Port Data Direction Register */
+#define FPTB_PDOR             (FPTB + 0x00u)                 /* Port Data Output Register */
+#define FPTB_PSOR             (FPTB + 0x04u)                 /* Port Set Output Register */
+#define FPTB_PCOR             (FPTB + 0x08u)                 /* Port Clear Output Register */
+#define FPTB_PTOR             (FPTB + 0x0Cu)                 /* Port Toggle Output Register */
+#define FPTB_PDIR             (FPTB + 0x10u)                 /* Port Data Input Register */
+#define FPTB_PDDR             (FPTB + 0x14u)                 /* Port Data Direction Register */
