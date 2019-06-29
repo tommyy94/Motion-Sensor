@@ -1,5 +1,5 @@
-  .include "Inc/peripherals.inc"
-  .include "Inc/core.inc"
+#include "core.h"
+#include "peripherals.h"
 
   .syntax unified
   .thumb
@@ -17,11 +17,7 @@ _start:
   bl    COP_Disable
   bl    PORTB_Init
 
-  movs  r4, #(1 << 0)
-  ldr   r5, =GPIOB_PTOR
-
 loop:
-  str   r4, [r5]
   b     loop
 
 
