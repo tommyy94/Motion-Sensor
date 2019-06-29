@@ -33,17 +33,11 @@
       project_type="Executable"
       target_reset_script="Reset();"
       target_trace_initialize_script="EnableTrace(&quot;$(TraceInterfaceType)&quot;)" />
-    <folder Name="Script Files">
-      <file file_name="Kinetis_KL/Scripts/Kinetis_KL_Target.js">
-        <configuration Name="Common" file_type="Reset Script" />
-      </file>
-    </folder>
     <folder Name="Source Files">
       <configuration Name="Common" filter="c;cpp;cxx;cc;h;s;asm;inc" />
-      <file file_name="peripherals.inc" />
-      <file file_name="main.s" />
-      <file file_name="NVIC.s" />
-      <file file_name="core.inc" />
+      <file file_name="Src/main.s" />
+      <file file_name="Src/NVIC.s" />
+      <file file_name="Src/IO.s" />
     </folder>
     <folder Name="System Files">
       <configuration
@@ -52,6 +46,15 @@
       <file file_name="Kinetis_KL/Source/Kinetis_KL_Startup.s" />
       <file file_name="Kinetis_KL/Source/MKL02Z4_Vectors.s">
         <configuration Name="Common" file_type="Assembly" />
+      </file>
+    </folder>
+    <folder Name="Include Files">
+      <file file_name="Inc/peripherals.h" />
+      <file file_name="Inc/core.h" />
+    </folder>
+    <folder Name="Script Files">
+      <file file_name="Kinetis_KL/Scripts/Kinetis_KL_Target.js">
+        <configuration Name="Common" file_type="Reset Script" />
       </file>
     </folder>
   </project>
@@ -64,6 +67,8 @@
     arm_target_interface_type="SWD"
     build_remove_unused_symbols="Yes"
     c_preprocessor_definitions="DEBUG"
+    c_system_include_directories="$(StudioDir)/include;$(PackagesDir)/include"
+    c_user_include_directories=".;./Inc;./Src"
     debug_target_connection="J-Link"
     gcc_debugging_level="Level 3"
     gcc_dwarf_version="None"

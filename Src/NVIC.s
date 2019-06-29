@@ -1,5 +1,5 @@
-  .include "peripherals.inc"
-  .include "core.inc"
+#include "core.h"
+#include "peripherals.h"
 
   .syntax unified
   .thumb
@@ -8,10 +8,36 @@
   .text
 
 
+  .align 4
+/* Lookup table for NVIC_IPRn offset, IRQn as indexed memory access */
+NVIC_LookupTable:
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+
+
+  .align 4
+/* Lookup table for doubleword alignment */
+DWAlignmentTable:
+  .byte  0,  0,  0,  0
+  .byte  4,  4,  4,  4
+  .byte  8,  8,  8,  8
+  .byte 12, 12, 12, 12
+  .byte 16, 16, 16, 16
+  .byte 20, 20, 20, 20
+  .byte 24, 24, 24, 24
+  .byte 28, 28, 28, 28
+
+
 /**
  * Enable interrupt vector in NVIC.
  *
- * Registers modified: r4, r5, r6
+ * Registers modified: r4, r5
  *
  * Argument:  r0 - Interrupt vector
  * Return:    None
@@ -22,18 +48,17 @@
   .global NVIC_EnableIRQ
 NVIC_EnableIRQ:
   push  {r4-r5, LR}               /* Prologue */
-  ldr   r4, =NVIC                 /* Load address to register */
-  ldr   r5, =NVIC_ISER            /* Load Interrupt Set Enable Register offset */
-  movs  r6, #1                    /* NVIC_IRQn needs to be shifted */
-  lsls  r6, r6, r0                /* 1 << NVIC_IRQn */
-  str   r6, [r4, r5]              /* Write to enable interrupt */
+  ldr   r4, =NVIC_ISER            /* Load Interrupt Set Enable Register*/
+  movs  r5, #1                    /* NVIC_IRQn needs to be shifted */
+  lsls  r5, r5, r0                /* 1 << NVIC_IRQn */
+  str   r5, [r4]                  /* Write to enable interrupt */
   pop   {r4-r5, PC}               /* Epilogue and return */
 
 
 /**
  * Disable interrupt vector in NVIC.
  *
- * Registers modified: r4, r5, r6
+ * Registers modified: r4, r5
  *
  * Argument:  r0 - Interrupt vector
  * Return:    None
@@ -44,18 +69,17 @@ NVIC_EnableIRQ:
   .global NVIC_DisableIRQ
 NVIC_DisableIRQ:
   push  {r4-r5, LR}               /* Prologue */
-  ldr   r4, =NVIC                 /* Load address to register */
-  ldr   r5, =NVIC_ICER            /* Load Interrupt Clear Enable Register offset */
-  movs  r6, #1                    /* NVIC_IRQn needs to be shifted */
-  lsls  r6, r6, r0                /* 1 << NVIC_IRQn */
-  str   r6, [r4, r5]              /* Write to disable interrupt */
+  ldr   r4, =NVIC_ICER            /* Load Interrupt Clear Enable Register */
+  movs  r5, #1                    /* NVIC_IRQn needs to be shifted */
+  lsls  r5, r5, r0                /* 1 << NVIC_IRQn */
+  str   r5, [r4]                  /* Write to disable interrupt */
   pop   {r4-r5, PC}               /* Epilogue and return */
 
 
 /**
  * Clear pending interrupt request in NVIC.
  *
- * Registers modified: r4, r5, r6
+ * Registers modified: r4, r5
  *
  * Argument:  r0 - Interrupt vector
  * Return:    None
@@ -66,11 +90,10 @@ NVIC_DisableIRQ:
   .global NVIC_ClearPendingIRQ
 NVIC_ClearPendingIRQ:
   push  {r4-r5, LR}               /* Prologue */
-  ldr   r4, =NVIC                 /* Load address to register */
-  ldr   r5, =NVIC_ICPR            /* Load Interrupt Clear Pending Register offset */
-  movs  r6, #1                    /* NVIC_IRQn needs to be shifted */
-  lsls  r6, r6, r0                /* 1 << NVIC_IRQn */
-  str   r6, [r4, r5]              /* Write to disable interrupt */
+  ldr   r4, =NVIC_ICPR            /* Load Load Interrupt Clear Pending Register */
+  movs  r5, #1                    /* NVIC_IRQn needs to be shifted */
+  lsls  r5, r5, r0                /* 1 << NVIC_IRQn */
+  str   r5, [r4]                  /* Write to disable interrupt */
   pop   {r4-r5, PC}               /* Epilogue and return */
 
 
@@ -82,8 +105,6 @@ NVIC_ClearPendingIRQ:
  * Argument:  r0 - Interrupt vector
  * Argument:  r1 - Interrupt priority
  * Return:    None
- *
- * TODO: Figure out the magic offset
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb_func
@@ -92,20 +113,18 @@ NVIC_ClearPendingIRQ:
 NVIC_SetPriority:
   push  {r4-r7, LR}               /* Prologue */
 
-  ldr   r6, =NVIC                 /* Load NVIC address to register */
-  ldr   r7, =NVIC_IP              /* Load NVIC Interrupt Priority offset */
-
   /* Store NVIC_IPRn register in r4 */
-  adds  r4, r6, r7                /* Store NVIC_IP address to register */
-  adds  r4, r4, r0                /* Add IRQn offset */
-  subs  r4, r4, #2                /* Subtract magic offset */
+  ldr   r4, =NVIC_IP              /* Load NVIC Interrupt Priority to register */
+  ldr   r5, =DWAlignmentTable     /* Load lookup table address */
+  ldrb  r5, [r5, r0]
+  adds  r4, r5                    /* Add IRQn offset */
 
   /* Store NVIC_IPRn byte position in r5 */
   ldr   r5, =NVIC_LookupTable     /* Load lookup table address */
   ldrb  r5, [r5, r0]              /* Read byte indexed by IRQn from lookup table */
 
-  /* NVIC_IPRn |= new priority */
-  ldr   r6, [r6, r7]              /* Get NVIC */
+  /* NVIC_IPRn |= new priority */   
+  ldr   r6, [r4]                  /* Load NVIC Interrupt Priority to register */
   movs  r7, #0xFF                 /* Byte mask */
   lsls  r7, r7, r5                /* Shift mask to interrupts position */
   bics  r6, r6, r7                /* Clear previous value */
@@ -114,3 +133,6 @@ NVIC_SetPriority:
   str   r6, [r4]                  /* Write back new value */
 
   pop   {r4-r7, PC}               /* Epilogue and return */
+
+
+  .end
