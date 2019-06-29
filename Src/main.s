@@ -16,6 +16,7 @@
 _start:
   bl    COP_Disable
   bl    PORTB_Init
+  bl    TPM_Init
 
 loop:
   /* Read flag */
@@ -47,30 +48,6 @@ COP_Disable:
   ldr   r4, =SIM_COPC             /* Load address to register */
   movs  r5, #0                    /* Clear register */
   str   r5, [r4]                  /* Write 0 SIM + COPC offset */
-  bx    lr
-
-
-/**
- * Drive LED with PWM.
- *
- * Registers modified: r4
- *
- * Argument:  r0
- * Return:    None
- */
-  .eabi_attribute Tag_ABI_align_preserved, 1
-  .thumb
-  .text
-  .thumb_func
-  .type DriveLed, %function
-  .global DriveLed
-DriveLed:
-  /* Reset flag */
-  movs  r4, #0
-  str   r4, [r0]
-
-  /* Do work here */
-
   bx    lr
 
 
