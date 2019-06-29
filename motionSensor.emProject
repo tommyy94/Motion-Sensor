@@ -49,8 +49,8 @@
       </file>
     </folder>
     <folder Name="Include Files">
-      <file file_name="Inc/core.inc" />
-      <file file_name="Inc/peripherals.inc" />
+      <file file_name="Inc/peripherals.h" />
+      <file file_name="Inc/core.h" />
     </folder>
     <folder Name="Script Files">
       <file file_name="Kinetis_KL/Scripts/Kinetis_KL_Target.js">
