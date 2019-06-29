@@ -1,11 +1,37 @@
-  .include "Inc/peripherals.inc"
-  .include "Inc/core.inc"
+#include "core.h"
+#include "peripherals.h"
 
   .syntax unified
   .thumb
 
 
   .text
+
+
+  .align 4
+/* Lookup table for NVIC_IPRn offset, IRQn as indexed memory access */
+NVIC_LookupTable:
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+  .byte 0, 8, 16, 24
+
+
+  .align 4
+/* Lookup table for doubleword alignment */
+DWAlignmentTable:
+  .byte  0,  0,  0,  0
+  .byte  4,  4,  4,  4
+  .byte  8,  8,  8,  8
+  .byte 12, 12, 12, 12
+  .byte 16, 16, 16, 16
+  .byte 20, 20, 20, 20
+  .byte 24, 24, 24, 24
+  .byte 28, 28, 28, 28
 
 
 /**
