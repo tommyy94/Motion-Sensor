@@ -3,12 +3,16 @@
 
   .syntax unified
   .thumb
+
+  .data
+  .align 4
+  .global PORTB_IRQFlag
+PORTB_IRQFlag:
+  .word 0
+
   .text
 
 
-  .align 4
-PORTB_IRQFlag:
-  .byte 0
 
 
 /**
@@ -59,11 +63,15 @@ PORTB_Init:
   .type PORTB_IRQHandler, %function
   .global PORTB_IRQHandler
 PORTB_IRQHandler:
+  /* Clear pending interrupts in peripheral */
   ldr   r4, =PORTB_ISFR           /* Load address */
   ldr   r5, =PORT_ISFR_ISF(1)     /* Load mask */
   str   r5, [r4]                  /* Clear interrupts */
 
-  /* Notify main program here */
+  /* Set flag */
+  movs  r4, #1
+  ldr   r5, =PORTB_IRQFlag
+  str   r4, [r5]
 
   bx    LR
 
