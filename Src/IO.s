@@ -10,9 +10,8 @@
 PORTB_IRQFlag:
   .word 0
 
+
   .text
-
-
 
 
 /**
@@ -57,21 +56,27 @@ PORTB_Init:
   pop   {PC}                      /* Load return address */
 
 
+/**
+ * PORTB Interrupt Request Handler. Set interrupt flag.
+ *
+ * Registers modified: None
+ *
+ * Argument:  None
+ * Return:    None
+ * Todo:      Figure out why startup triggers this
+ */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .text
   .thumb_func
   .type PORTB_IRQHandler, %function
   .global PORTB_IRQHandler
 PORTB_IRQHandler:
-  /* Clear pending interrupts in peripheral */
-  ldr   r4, =PORTB_ISFR           /* Load address */
-  ldr   r5, =PORT_ISFR_ISF(1)     /* Load mask */
-  str   r5, [r4]                  /* Clear interrupts */
-
-  /* Set flag */
-  movs  r4, #1
-  ldr   r5, =PORTB_IRQFlag
-  str   r4, [r5]
+  movs  r2, #1                    /* Set flag value */
+  ldr   r0, =PORTB_ISFR           /* Load address */
+  ldr   r1, =PORT_ISFR_ISF(1)     /* Load mask */
+  ldr   r3, =PORTB_IRQFlag        /* Load flag address */
+  str   r1, [r0]                  /* Clear pending interrupts in peripheral */
+  str   r2, [r3]                  /* Set flag */
 
   bx    LR
 
