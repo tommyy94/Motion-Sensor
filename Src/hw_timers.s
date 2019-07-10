@@ -7,6 +7,66 @@
   .text
 
 
+
+/**
+ * Initialize MCG.
+ *
+ * Registers modified: r2, r3, r4, r5, r6, r7
+ *
+ * Argument:  None
+ * Return:    None
+ */
+  .eabi_attribute Tag_ABI_align_preserved, 1
+  .thumb
+  .text
+  .thumb_func
+  .type MCG_Init, %function
+  .global MCG_Init
+MCG_Init:
+  /* Reset system prescalers */
+  movs  r4, #0
+  ldr   r5, =SIM_CLKDIV1
+  ldr   r6, =MCG_C1
+  str   r4, [r5]                      /* Write reset here */
+
+  /* Switch to FBI mode */
+  ldr   r7, =(MCG_C1_CLKS(0x01)       /* Internal reference clock */          \
+            | MCG_C1_FRDIV(0x00)      /* FLL External Reference Divider 0 */  \
+            | MCG_C1_IREFS_MASK       /* Slow internal  reference clock */    \
+            | MCG_C1_IRCLKEN_MASK)    /* MCGIRCLK active */
+
+  ldr   r4, =MCG_C2                   /* Load MCG_C2 address */
+  strb  r7, [r6]                      /* Write to SIM_CLKDIV1 */
+  ldrb  r3, [r4]                      /* Load MCG_C2 value */
+
+  /* Disable the following options: */
+  ldr   r5, =~(MCG_C2_LOCRE0_MASK     /* Internal reference clock */                              \
+            | MCG_C2_RANGE0(0x03)     /* Very high frequency range for the crystal oscillator */  \
+            | MCG_C2_HGO0_MASK        /* High-gain oscillator mode */                             \
+            | MCG_C2_EREFS0_MASK      /* Oscillator requested reference select */                 \
+            | MCG_C2_LP_MASK)         /* FLL disabled in bypass modes */
+  /* Enable option: */
+  ldr   r2, =MCG_C2_IRCS_MASK         /* Fast internal reference clock */
+  ands  r3, r3, r5
+  ldr   r6, =MCG_C4
+  orrs  r3, r3, r2
+
+  /* Reset DCO settings */
+  ldr   r7, =~(MCG_C4_DMX32_MASK \
+            | MCG_C4_DRST_DRS(0x03))
+  ldrb  r5, [r6]
+  strb  r3, [r4]                      /* Write mask to MCG_C2 */
+  ands  r5, r5, r7
+
+  /* Configure Oscillator module */
+  ldr   r3, =OSC0_CR                  /* Load OSC0 address */
+  ldr   r7, =OSC_CR_ERCLKEN_MASK      /* Enable external reference clock */
+  strb  r5, [r6]                      /* Write mask to MCG_C4 */
+  strb  r7, [r3]                      /* Write OSC0 */
+
+  bx    lr
+
+
 /**
  * Initialize Timer/PWM Module.
  *

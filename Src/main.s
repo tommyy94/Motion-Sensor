@@ -15,6 +15,7 @@
   .global _start
 _start:
   bl    COP_Disable
+  bl    MCG_Init
   bl    PORTB_Init
   bl    TPM_Init
 
