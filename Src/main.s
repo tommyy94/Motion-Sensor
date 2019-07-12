@@ -8,6 +8,8 @@
 
 /**
  * Main entry point.
+ *
+ * Todo:      Move subroutine call to ISR.
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb_func
@@ -19,9 +21,9 @@ _start:
   bl    PORTB_Init
   bl    TPM_Init
 
-loop:
   /* Read flag */
   ldr   r0, =PORTB_IRQFlag    /* Load flag address, used as argument aswell */
+loop:
   ldr   r4, [r0]              /* Load flag value */
   cmp   r4, #1                /* If flag not set */
   bne   loop                  /* Repeat loop */
@@ -49,7 +51,7 @@ COP_Disable:
   ldr   r4, =SIM_COPC             /* Load address to register */
   movs  r5, #0                    /* Clear register */
   str   r5, [r4]                  /* Write 0 SIM + COPC offset */
-  bx    lr
+  bx    LR
 
 
   .end
