@@ -7,7 +7,6 @@
   .text
 
 
-
 /**
  * Initialize MCG.
  *
