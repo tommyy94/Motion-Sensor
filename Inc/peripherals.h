@@ -167,7 +167,7 @@
 
 /* Peripheral FPTA base address */
 #define FPTA                          (0xF80FF000u)                 /* FPTA Base Address */
-#define FTPB                          (0xF80FF040u)                 /* FPTB Base Address */
+#define FPTB                          (0xF80FF040u)                 /* FPTB Base Address */
 
 #define FPTA_PDOR                     (FPTA + 0x00u)                /* Port Data Output Register */
 #define FPTA_PSOR                     (FPTA + 0x04u)                /* Port Set Output Register */
