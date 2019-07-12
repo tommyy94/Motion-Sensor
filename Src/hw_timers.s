@@ -27,8 +27,8 @@ MCG_Init:
 
   /* Reset system prescalers */
   movs  r4, #0
-  ldr   r5, =SIM_CLKDIV1
-  ldr   r6, =MCG_C1
+  ldr   r5, =SIM_CLKDIV1              /* Load address */
+  ldr   r6, =MCG_C1                   /* Load address */
   str   r4, [r5]                      /* Write reset here */
 
   /* Switch to FBI mode */
@@ -90,7 +90,7 @@ WaitMCGOutput:
             | MCG_C2_LP_MASK)         /* FLL disabled in bypass modes */
   ands  r3, r3, r5
   orrs  r3, r3, r2
-  strb  r3, [r4]
+  strb  r3, [r4]                      /* Write MCG_C2 */
   
   bl    CheckFLL
 
@@ -155,7 +155,7 @@ TPM_Init:
   movs  r7, #0                      /* Clear register */
   orrs  r6, r5                      /* SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK */
   adds  r7, r4, #0x04               /* SIM_SCGC6 = SIM_SCGC5 + offset 0x04, arithmetic is faster than memory access */
-  str   r6, [r4]                    /* Write SIM-SCGC5 */
+  str   r6, [r4]                    /* Write SIM_SCGC5 */
 
   /* Enable TPM clock gating */
   ldr   r5, =SIM_SCGC6_TPM_MASK     /* Load mask value */
@@ -175,13 +175,13 @@ TPM_Init:
   ldr   r5, =SIM_SOPT2_TPMSRC(1)    /* MCGFLLCLK as clock source */
   ldr   r7, =4800 -1                /* Load immediate value */
   orrs  r3, r3, r7                  /* TPM_MOD |= 4800 - 1 */
-  str   r5,  [r4]                   /* Write */
+  str   r5,  [r4]                   /* Write SIM_SOPT2 */
 
   /* Load counter */
-  str   r3, [r6]
+  str   r3, [r6]                    /* Write TPM_MOD */
 
   /* Set SC register */
-  ldr   r4, =TPM_SC
+  ldr   r4, =TPM_SC                 /* Load address */
   ldr   r6, =TPM_C0SC               /* Load address */
   ldr   r5, =(TPM_SC_CPWMS_MASK     /* Up-down counting mode */   \
             | TPM_SC_PS(1))         /* Prescale divide by 2 */
@@ -192,10 +192,10 @@ TPM_Init:
   /* Configure PWM */     
   ldr   r2, =4800                   /* Set TPM0 Channel 0 value */   
   ldr   r3, =TPM_C0V                /* Load address */  
-  str   r7, [r6]
+  str   r7, [r6]                    /* Write TPM_C0SC */
 
   /* Set TPM value */
-  str   r2, [r3]
+  str   r2, [r3]                    /* Write TPM_C0V */
 
   bx    LR
 
