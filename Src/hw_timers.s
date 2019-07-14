@@ -214,9 +214,7 @@ DriveLed:
   ldr   r6, =TPM_SC                 /* Load TPM_SC address */
   ldr   r7, =TPM_SC_CMOD(1)         /* Load mask */
   ldr   r5, [r6]                    /* Load TPM_SC value */
-  movs  r4, #0                      /* Reset flag value */
   orrs  r5, r5, r7                  /* Select clock mode enabling TPM */
-  str   r4, [r0]                    /* Write flag value */
   str   r5, [r6]                    /* Start PWM */
 
   bx    LR

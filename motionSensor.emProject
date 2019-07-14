@@ -39,6 +39,7 @@
       <file file_name="Src/NVIC.s" />
       <file file_name="Src/IO.s" />
       <file file_name="Src/hw_timers.s" />
+      <file file_name="Src/system.s" />
     </folder>
     <folder Name="System Files">
       <configuration

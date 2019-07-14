@@ -108,10 +108,8 @@ PORTB_IRQHandler:
   ldr   r2, [r0]                  /* Load PORTB_ISFR value */
   tst   r2, r1
   beq   PORTB_IRQHandler_End      /* If flag == zero => goto end */
-  ldr   r3, =PORTB_IRQFlag        /* Load flag address */
-  movs  r2, #1                    /* Set flag value */
   str   r1, [r0]                  /* Clear pending interrupts in peripheral */
-  str   r2, [r3]                  /* Set flag */
+  bl    DriveLed
 
 PORTB_IRQHandler_End:
   bx    LR

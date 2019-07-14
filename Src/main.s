@@ -25,14 +25,8 @@ _start:
 
   bl    PollButton            /* To prevent lockout */
 
-  /* Move this section to IRQHandler to implement Interrupt driven algorithm */
-  ldr   r0, =PORTB_IRQFlag    /* Load flag address, used as argument aswell */
 loop:
-  ldr   r4, [r0]              /* Load flag value */
-  cmp   r4, #1                /* If flag not set */
-  bne   loop                  /* Repeat loop */
-  bl    DriveLed              /* Else lights on */
-
+  wfi
   b     loop
 
 
