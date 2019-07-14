@@ -17,7 +17,6 @@
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb
-  .text
   .thumb_func
   .type MCG_Init, %function
   .global MCG_Init
@@ -31,7 +30,7 @@ MCG_Init:
   str   r4, [r5]                      /* Write reset here */
 
   /* Switch to FBI mode */
-  ldr   r7, =(MCG_C1_CLKS(0x01)       /* Internal reference clock */          \
+  ldr   r7, =(MCG_C1_CLKS(0x00)       /* Output of FLL */                     \
             | MCG_C1_FRDIV(0x00)      /* FLL External Reference Divider 0 */  \
             | MCG_C1_IREFS_MASK       /* Slow internal  reference clock */    \
             | MCG_C1_IRCLKEN_MASK)    /* MCGIRCLK active */
@@ -136,11 +135,10 @@ CheckFLL_Loop:
  *
  * Argument:  None
  * Return:    None
- * Todo.      Figure out TPM_MOD register */
+ * Todo       Figure out TPM_MOD register
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb
-  .text
   .thumb_func
   .type TPM_Init, %function
   .global TPM_Init
@@ -209,7 +207,6 @@ TPM_Init:
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb
-  .text
   .thumb_func
   .type DriveLed, %function
   .global DriveLed
