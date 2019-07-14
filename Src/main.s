@@ -16,12 +16,16 @@
   .type _start, %function
   .global _start
 _start:
+  dsb                         /* Wait until all outstanding memory accesses completed */
+  cpsid i                     /* Set PRIMASK */
   bl    COP_Disable
   bl    MCG_Init
   bl    PORTB_Init
   bl    TPM_Init
 
-  /* Read flag */
+  bl    PollButton            /* To prevent lockout */
+
+  /* Move this section to IRQHandler to implement Interrupt driven algorithm */
   ldr   r0, =PORTB_IRQFlag    /* Load flag address, used as argument aswell */
 loop:
   ldr   r4, [r0]              /* Load flag value */
@@ -43,7 +47,6 @@ loop:
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb
-  .text
   .thumb_func
   .type COP_Disable, %function
   .global COP_Disable
