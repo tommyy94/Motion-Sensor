@@ -8,8 +8,6 @@
 
 /**
  * Main entry point.
- *
- * Todo:      Move subroutine call to ISR.
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb_func
@@ -18,37 +16,22 @@
 _start:
   dsb                         /* Wait until all outstanding memory accesses completed */
   cpsid i                     /* Set PRIMASK */
+
   bl    COP_Disable
   bl    MCG_Init
+  bl    LP_Init
   bl    PORTB_Init
   bl    TPM_Init
+  bl    LPTMR_Init
 
   bl    PollButton            /* To prevent lockout */
 
+  cpsie i                     /* Clear PRIMASK */
+
 loop:
-  wfi
+  dsb                         /* Wait until all outstanding memory accesses completed */
+  wfi                         /* Set deep sleep mode */
   b     loop
-
-
-/**
- * Disable Computer Operating Properly aka
- * Watchdog Timer to avoid reset loop.
- *
- * Registers modified: r4, r5
- *
- * Argument:  None
- * Return:    None
- */
-  .eabi_attribute Tag_ABI_align_preserved, 1
-  .thumb
-  .thumb_func
-  .type COP_Disable, %function
-  .global COP_Disable
-COP_Disable:
-  ldr   r4, =SIM_COPC             /* Load address to register */
-  movs  r5, #0                    /* Clear register */
-  str   r5, [r4]                  /* Write 0 SIM + COPC offset */
-  bx    LR
 
 
   .end
