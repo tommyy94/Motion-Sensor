@@ -51,7 +51,7 @@ PORTB_Init:
   ldr   r5, [r4]                  /* Load value */
   movs  r0, #PORTB_IRQn           /* Load interrupt vector position */
   bics  r5, r5, r6                /* Clear FPTB1 bit */
-  ldr   r1, =NVIC_IPRn_LEVEL1     /* Load interrupt priority */
+  movs  r1, #NVIC_IPRn_LEVEL1     /* Load interrupt priority */
   str   r5, [r4]                  /* Write FTPB_PDDR */
 
   /* Initialize PORTB NVIC */
@@ -59,7 +59,6 @@ PORTB_Init:
   bl    NVIC_SetPriority
   bl    NVIC_ClearPendingIRQ
   bl    NVIC_EnableIRQ
-  cpsie i                         /* Clear PRIMASK */
 
   pop   {PC}                      /* Load return address */
 
@@ -103,6 +102,7 @@ PollButtonLoop:
   .type PORTB_IRQHandler, %function
   .global PORTB_IRQHandler
 PORTB_IRQHandler:
+  push  {LR}
   ldr   r0, =PORTB_ISFR           /* Load address */
   ldr   r1, =PORT_ISFR_ISF(1)     /* Load mask */
   ldr   r2, [r0]                  /* Load PORTB_ISFR value */
@@ -112,7 +112,7 @@ PORTB_IRQHandler:
   bl    DriveLed
 
 PORTB_IRQHandler_End:
-  bx    LR
+  pop   {PC}
 
 
   .end

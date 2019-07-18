@@ -10,6 +10,7 @@
 
   .align 4
 /* Lookup table for NVIC_IPRn offset, IRQn as indexed memory access */
+  .type   NVIC_LookupTable, %object
 NVIC_LookupTable:
   .byte 0, 8, 16, 24
   .byte 0, 8, 16, 24
@@ -23,6 +24,7 @@ NVIC_LookupTable:
 
   .align 4
 /* Lookup table for doubleword alignment */
+  .type   DWAlignment, %object
 DWAlignmentTable:
   .byte  0,  0,  0,  0
   .byte  4,  4,  4,  4
