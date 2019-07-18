@@ -1,14 +1,33 @@
 /* SCS base address */
 #define SCS                           (0xE000E000u)                 /* System Control Space Base Address */
-#define SysTICK                       (SCS + 0x0010u                /* SysTICK Timer */
+#define SysTICK                       (SCS + 0x0010u)               /* SysTICK Timer */
 #define NVIC                          (SCS + 0x0100u)               /* Nested Vectored Interrupt Controller */
-#define SCB                           (SCS + 0XD000u)               /* System Control Block */
+#define SCB                           (SCS + 0x0D00u)               /* System Control Block */
 
+/* NVIC Base Address */
 #define NVIC_ISER                     (NVIC + 0x000u)               /* Interrupt Set Enable Register */
 #define NVIC_ICER                     (NVIC + 0x080u)               /* Interrupt Clear Enable Register */
 #define NVIC_ISPR                     (NVIC + 0x100u)               /* Interrupt Set Pending Register */
 #define NVIC_ICPR                     (NVIC + 0x180u)               /* Interrupt Clear Pending Register */
 #define NVIC_IP                       (NVIC + 0x300U)               /* Interrupt Priority Register */
+
+/* SCB Base Address */
+#define SCB_CPUID                     (SCB + 0x000u)                /* CPUID Base Register */
+#define SCB_ICSR                      (SCB + 0x004u)                /* Interrupt Control and State Register */
+#define SCB_VTOR                      (SCB + 0x008u)                /* Vector Table Offset Register */
+#define SCB_AIRCR                     (SCB + 0x00Cu)                /* Application Interrupt and Reset Control Register */
+#define SCB_SCR                       (SCB + 0x010u)                /* System Control Register */
+#define SCB_CCR                       (SCB + 0x014u)                /* Configuration Control Register */
+#define SCB_SHP                       (SCB + 0x01Cu)                /* System Handlers Priority Register */
+#define SCB_SHCSR                     (SCB + 0x024u)                /* System Handler Control and State Register */
+
+/* SCB SCR Register Masks */
+#define SCB_SCR_SEVONPEND_Pos         (4U)          
+#define SCB_SCR_SEVONPEND_Msk         (1UL << SCB_SCR_SEVONPEND_Pos)
+#define SCB_SCR_SLEEPDEEP_Pos         (2U)
+#define SCB_SCR_SLEEPDEEP_Msk         (1UL << SCB_SCR_SLEEPDEEP_Pos)
+#define SCB_SCR_SLEEPONEXIT_Pos       (1U)
+#define SCB_SCR_SLEEPONEXIT_Msk       (1UL << SCB_SCR_SLEEPONEXIT_Pos)
 
 /* Peripheral SIM base address */
 #define SIM                           (0x40047000u)                 /* System Integration Module Base Address */
@@ -19,6 +38,7 @@
 #define SIM_CLKDIV1                   (SIM + 0x1044u)               /* System Clock Divider Register 1 */
 
 /* Peripheral SIM Register Masks */
+#define SIM_SCGC5_LPTMR_MASK          (0x1u)                        /* System Clock Gating Control 5 LPTMR0 Mask */
 #define SIM_SCGC5_PORTA_MASK          (0x0200u)                     /* System Clock Gating Control 5 PORTA Mask */
 #define SIM_SCGC5_PORTB_MASK          (0x0400u)                     /* System Clock Gating Control 5 PORTB Mask */
 #define SIM_SCGC6_TPM_MASK            (0x1000000u)                  /* System Clock Gating Control 6 TPM Mask */
@@ -118,18 +138,56 @@
 #define OSC0_CR                       (OSC0 + 0x000u)               /* OSC Control Register */
 
 /* Peripheral OSC0 Register Masks */
-#define OSC_CR_SC16P_MASK                        (0x1u)
-#define OSC_CR_SC16P_SHIFT                       (0)
-#define OSC_CR_SC8P_MASK                         (0x2u)
-#define OSC_CR_SC8P_SHIFT                        (1)
-#define OSC_CR_SC4P_MASK                         (0x4u)
-#define OSC_CR_SC4P_SHIFT                        (2)
-#define OSC_CR_SC2P_MASK                         (0x8u)
-#define OSC_CR_SC2P_SHIFT                        (3)
-#define OSC_CR_EREFSTEN_MASK                     (0x20u)
-#define OSC_CR_EREFSTEN_SHIFT                    (5)
-#define OSC_CR_ERCLKEN_MASK                      (0x80u)
-#define OSC_CR_ERCLKEN_SHIFT                     (7)
+#define OSC_CR_SC16P_MASK             (0x1u)
+#define OSC_CR_SC16P_SHIFT            (0)
+#define OSC_CR_SC8P_MASK              (0x2u)
+#define OSC_CR_SC8P_SHIFT             (1)
+#define OSC_CR_SC4P_MASK              (0x4u)
+#define OSC_CR_SC4P_SHIFT             (2)
+#define OSC_CR_SC2P_MASK              (0x8u)
+#define OSC_CR_SC2P_SHIFT             (3)
+#define OSC_CR_EREFSTEN_MASK          (0x20u)
+#define OSC_CR_EREFSTEN_SHIFT         (5)
+#define OSC_CR_ERCLKEN_MASK           (0x80u)
+#define OSC_CR_ERCLKEN_SHIFT          (7)
+
+/* Peripheral LPTMR0 base address */
+#define LPTMR0                        (0x40040000u)
+#define LPTMR0_CSR                    (LPTMR0 + 0x000u)
+#define LPTMR0_PSR                    (LPTMR0 + 0x004u)
+#define LPTMR0_CMR                    (LPTMR0 + 0x008u)
+#define LPTMR0_CNR                    (LPTMR0 + 0x00Cu)
+
+/* Peripheral LPTMR0 Register Masks */
+#define LPTMR_CSR_TEN_MASK            (0x1u)
+#define LPTMR_CSR_TEN_SHIFT           (0)
+#define LPTMR_CSR_TMS_MASK            (0x2u)
+#define LPTMR_CSR_TMS_SHIFT           (1)
+#define LPTMR_CSR_TFC_MASK            (0x4u)
+#define LPTMR_CSR_TFC_SHIFT           (2)
+#define LPTMR_CSR_TPP_MASK            (0x8u)
+#define LPTMR_CSR_TPP_SHIFT           (3)
+#define LPTMR_CSR_TPS_MASK            (0x30)
+#define LPTMR_CSR_TPS_SHIFT           (4)
+#define LPTMR_CSR_TPS(x)              ((((x)<<LPTMR_CSR_TPS_SHIFT))&LPTMR_CSR_TPS_MASK)
+#define LPTMR_CSR_TIE_MASK            (0x40u)
+#define LPTMR_CSR_TIE_SHIFT           (6)
+#define LPTMR_CSR_TCF_MASK            (0x80u)
+#define LPTMR_CSR_TCF_SHIFT           (7)
+#define LPTMR_PSR_PCS_MASK            (0x3u)
+#define LPTMR_PSR_PCS_SHIFT           (0)
+#define LPTMR_PSR_PCS(x)              ((((x)<<LPTMR_PSR_PCS_SHIFT))&LPTMR_PSR_PCS_MASK)
+#define LPTMR_PSR_PBYP_MASK           (0x4u)
+#define LPTMR_PSR_PBYP_SHIFT          (2)
+#define LPTMR_PSR_PRESCALE_MASK       (0x78u)
+#define LPTMR_PSR_PRESCALE_SHIFT      (3)
+#define LPTMR_PSR_PRESCALE(x)         ((((x)<<LPTMR_PSR_PRESCALE_SHIFT))&LPTMR_PSR_PRESCALE_MASK)
+#define LPTMR_CMR_COMPARE_MASK        (0xFFFFu)
+#define LPTMR_CMR_COMPARE_SHIFT       (0)
+#define LPTMR_CMR_COMPARE(x)          ((((x)<<LPTMR_CMR_COMPARE_SHIFT))&LPTMR_CMR_COMPARE_MASK)
+#define LPTMR_CNR_COUNTER_MASK        (0xFFFFu)
+#define LPTMR_CNR_COUNTER_SHIFT       (0)
+#define LPTMR_CNR_COUNTER(x)          ((((x)<<LPTMR_CNR_COUNTER_SHIFT))&LPTMR_CNR_COUNTER_MASK)
 
 /* Peripheral PORTA base address */
 #define PORTA                         (0x40049000u)
