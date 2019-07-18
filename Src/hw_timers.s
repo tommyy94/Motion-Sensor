@@ -198,6 +198,61 @@ TPM_Init:
 
 
 /**
+ * Initialize Low Power Timer module. It is used as a
+ * wakeup source and it triggers after 10 ms.
+ * Use LPO = 1 kHz => prescaler 2, freq. = 500 kHz.
+ * Doesn't enable the timer.
+ *
+ * Registers modified: r2, r3, r4, r5, r6, r7
+ *
+ * Argument:  None
+ * Return:    None
+ */
+  .eabi_attribute Tag_ABI_align_preserved, 1
+  .thumb
+  .thumb_func
+  .type LPTMR_Init, %function
+  .global LPTMR_Init
+LPTMR_Init:
+  push  {LR}
+
+  /* Enable LPTMR0 clock gating */
+  ldr   r6, =SIM_SCGC5              /* Load SIM_SCGC5 base address */
+  ldr   r7, =SIM_SCGC5_LPTMR_MASK   /* Enable LPTMR0 */
+  ldr   r0, [r6]                    /* Load SIM_SCGC5 value */
+
+  /* Reset CSR */
+  ldr   r4, =LPTMR0_CSR             /* Load LPTMR0_CSR base address */
+  orrs  r7, r0, r7                  /* SIM_SCGC5 |= SIM_SCGC5_LPTMR_MASK */
+  ldr   r5, =(LPTMR_CSR_TIE_MASK    /* Timer Interrupt Enable */          \
+            | LPTMR_CSR_TCF_MASK)   /* Clear compare flag */
+  str   r7, [r6]                    /* Write SIM_SCGC5 */
+  str   r5, [r4]                    /* Write LPTMR0_CSR */
+
+  /* Set clock frequency */
+  ldr   r6, =(LPTMR_PSR_PRESCALE(0) /* Prescaler 2 */                     \
+            | LPTMR_PSR_PBYP_MASK   /* Bypass prescaler/glitch filter */  \
+            | LPTMR_PSR_PCS(1))     /* Clock source 1 kHz LPO */
+  adds  r4, r4, #0x04               /* Set LPTMR0_PSR */
+  ldr   r5, =LPTMR_CMR_COMPARE(50)  /* Compare match on 10 ms */
+  str   r6, [r4]                    /* Write LPTMR0_PSR */
+
+  /* Set compare value */
+  adds  r4, r4, #0x04               /* Set LPTMR0_CMR */
+  movs  r0, #LPTimer_IRQn           /* Load argument 1 of */
+  str   r5, [r4]                    /* Write LPTMR0_CMR */
+  movs  r1, #NVIC_IPRn_LEVEL1       /* Load interrupt priority */
+
+  /* Initialize LPTMR0 NVIC */
+  /* r0: Interrupt vector position, r1: interrupt priority */
+  bl    NVIC_SetPriority
+  bl    NVIC_ClearPendingIRQ
+  bl    NVIC_EnableIRQ
+
+  pop   {PC}
+
+
+/**
  * Drive LED with PWM.
  *
  * Registers modified: r4, r5, r6, r7
