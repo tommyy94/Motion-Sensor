@@ -51,9 +51,9 @@ DWAlignmentTable:
 NVIC_EnableIRQ:
   push  {r4-r5, LR}               /* Prologue */
   movs  r5, #1                    /* NVIC_IRQn needs to be shifted */
-  ldr   r4, =NVIC_ISER            /* Load Interrupt Set Enable Register*/
+  ldr   r4, =NVIC                 /* Load NVIC base address */
   lsls  r5, r5, r0                /* 1 << NVIC_IRQn */
-  str   r5, [r4]                  /* Write to enable interrupt */
+  str   r5, [r4, #NVIC_ISER]      /* Write NVIC_ISER */
   pop   {r4-r5, PC}               /* Epilogue and return */
 
 
@@ -72,9 +72,9 @@ NVIC_EnableIRQ:
 NVIC_DisableIRQ:
   push  {r4-r5, LR}               /* Prologue */
   movs  r5, #1                    /* NVIC_IRQn needs to be shifted */
-  ldr   r4, =NVIC_ICER            /* Load Interrupt Clear Enable Register */
+  ldr   r4, =NVIC + NVIC_ICER     /* Load NVIC base address */
   lsls  r5, r5, r0                /* 1 << NVIC_IRQn */
-  str   r5, [r4]                  /* Write to disable interrupt */
+  str   r5, [r4]                  /* Write NVIC_ICER */
   pop   {r4-r5, PC}               /* Epilogue and return */
 
 
@@ -93,9 +93,9 @@ NVIC_DisableIRQ:
 NVIC_ClearPendingIRQ:
   push  {r4-r5, LR}               /* Prologue */
   movs  r5, #1                    /* NVIC_IRQn needs to be shifted */
-  ldr   r4, =NVIC_ICPR            /* Load Load Interrupt Clear Pending Register */
+  ldr   r4, =NVIC + NVIC_ICPR     /* Load NVIC base address */
   lsls  r5, r5, r0                /* 1 << NVIC_IRQn */
-  str   r5, [r4]                  /* Write to disable interrupt */
+  str   r5, [r4]                  /* Write NVIC_ICPR */
   pop   {r4-r5, PC}               /* Epilogue and return */
 
 
@@ -121,7 +121,7 @@ NVIC_SetPriority:
    */
   ldr   r2, =NVIC_LookupTable     /* Load offset lookup table address */
   ldr   r5, =DWAlignmentTable     /* Load alignment lookup table address */
-  ldr   r4, =NVIC_IP              /* Load NVIC Interrupt Priority address */
+  ldr   r4, =NVIC + NVIC_IP       /* Load NVIC base address */
   ldrb  r5, [r5, r0]              /* Load interrupt priority to register */
   movs  r7, #0xFF                 /* Load byte mask for later use */
   adds  r4, r5                    /* Add IRQn offset */

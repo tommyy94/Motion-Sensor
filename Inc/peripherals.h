@@ -5,21 +5,21 @@
 #define SCB                           (SCS + 0x0D00u)               /* System Control Block */
 
 /* NVIC Base Address */
-#define NVIC_ISER                     (NVIC + 0x000u)               /* Interrupt Set Enable Register */
-#define NVIC_ICER                     (NVIC + 0x080u)               /* Interrupt Clear Enable Register */
-#define NVIC_ISPR                     (NVIC + 0x100u)               /* Interrupt Set Pending Register */
-#define NVIC_ICPR                     (NVIC + 0x180u)               /* Interrupt Clear Pending Register */
-#define NVIC_IP                       (NVIC + 0x300U)               /* Interrupt Priority Register */
+#define NVIC_ISER                     (0x000u)                      /* Interrupt Set Enable Register */
+#define NVIC_ICER                     (0x080u)                      /* Interrupt Clear Enable Register */
+#define NVIC_ISPR                     (0x100u)                      /* Interrupt Set Pending Register */
+#define NVIC_ICPR                     (0x180u)                      /* Interrupt Clear Pending Register */
+#define NVIC_IP                       (0x300U)                      /* Interrupt Priority Register */
 
 /* SCB Base Address */
-#define SCB_CPUID                     (SCB + 0x000u)                /* CPUID Base Register */
-#define SCB_ICSR                      (SCB + 0x004u)                /* Interrupt Control and State Register */
-#define SCB_VTOR                      (SCB + 0x008u)                /* Vector Table Offset Register */
-#define SCB_AIRCR                     (SCB + 0x00Cu)                /* Application Interrupt and Reset Control Register */
-#define SCB_SCR                       (SCB + 0x010u)                /* System Control Register */
-#define SCB_CCR                       (SCB + 0x014u)                /* Configuration Control Register */
-#define SCB_SHP                       (SCB + 0x01Cu)                /* System Handlers Priority Register */
-#define SCB_SHCSR                     (SCB + 0x024u)                /* System Handler Control and State Register */
+#define SCB_CPUID                     (0x000u)                      /* CPUID Base Register */
+#define SCB_ICSR                      (0x004u)                      /* Interrupt Control and State Register */
+#define SCB_VTOR                      (0x008u)                      /* Vector Table Offset Register */
+#define SCB_AIRCR                     (0x00Cu)                      /* Application Interrupt and Reset Control Register */
+#define SCB_SCR                       (0x010u)                      /* System Control Register */
+#define SCB_CCR                       (0x014u)                      /* Configuration Control Register */
+#define SCB_SHP                       (0x01Cu)                      /* System Handlers Priority Register */
+#define SCB_SHCSR                     (0x024u)                      /* System Handler Control and State Register */
 
 /* SCB SCR Register Masks */
 #define SCB_SCR_SEVONPEND_Pos         (4U)          
@@ -31,11 +31,20 @@
 
 /* Peripheral SIM base address */
 #define SIM                           (0x40047000u)                 /* System Integration Module Base Address */
-#define SIM_COPC                      (SIM + 0x1100u)               /* Computer Operating Properly Register */
-#define SIM_SOPT2                     (SIM + 0x1004u)               /* System Options 2 Register */
-#define SIM_SCGC5                     (SIM + 0x1038u)               /* System Clock Gating Control 5 Register */
-#define SIM_SCGC6                     (SIM + 0x103Cu)               /* System Clock Gating Control 6 Register */
-#define SIM_CLKDIV1                   (SIM + 0x1044u)               /* System Clock Divider Register 1 */
+#define SIM_SOPT2                     (0x1004u)                     /* System Options 2 Register */
+#define SIM_SOPT4                     (0x100Cu)                     /* System Options 4 Register */
+#define SIM_SOPT5                     (0x1010u)                     /* System Options 5 Register */
+#define SIM_SCGC4                     (0x1034u)                     /* System Clock Gating Control 4 Register */
+#define SIM_SCGC5                     (0x1038u)                     /* System Clock Gating Control 5 Register */
+#define SIM_SCGC6                     (0x103Cu)                     /* System Clock Gating Control 6 Register */
+#define SIM_CLKDIV1                   (0x1044u)                     /* System Clock Divider Register 1 */
+#define SIM_FCFG1                     (0x104Cu)                     /* Flash Configuration Register 1 */
+#define SIM_FCFG2                     (0x1050u)                     /* Flash Configuration Register 2 */
+#define SIM_UIDMH                     (0x1058u)                     /* Unique Identification Register Mid-High */
+#define SIM_UIDML                     (0x105Cu)                     /* Unique Identification Register Mid-Low */
+#define SIM_UIDL                      (0x1060u)                     /* Unique Identification Register Low */
+#define SIM_COPC                      (0x1100u)                     /* Computer Operating Properly Register */
+#define SIM_SRVCOP                    (0x1104u)                     /* Service COP Register */
 
 /* Peripheral SIM Register Masks */
 #define SIM_SCGC5_LPTMR_MASK          (0x1u)                        /* System Clock Gating Control 5 LPTMR0 Mask */
@@ -50,16 +59,31 @@
 #define SIM_SOPT2_UART0SRC_SHIFT      (26)
 #define SIM_SOPT2_UART0SRC(x)         ((((x)<<SIM_SOPT2_UART0SRC_SHIFT))&SIM_SOPT2_UART0SRC_MASK)
 
+#define SIM_CLKDIV1_OUTDIV4_MASK      (0x70000u)
+#define SIM_CLKDIV1_OUTDIV4_SHIFT     (16)
+#define SIM_CLKDIV1_OUTDIV4(x)        ((((x)<<SIM_CLKDIV1_OUTDIV4_SHIFT))&SIM_CLKDIV1_OUTDIV4_MASK)
+#define SIM_CLKDIV1_OUTDIV1_MASK      (0xF0000000u)
+#define SIM_CLKDIV1_OUTDIV1_SHIFT     (28)
+#define SIM_CLKDIV1_OUTDIV1(x)        ((((x)<<SIM_CLKDIV1_OUTDIV1_SHIFT))&SIM_CLKDIV1_OUTDIV1_MASK)
+
+#define SIM_FCFG1_FLASHDIS_MASK       (0x1u)
+#define SIM_FCFG1_FLASHDIS_SHIFT      (0)
+#define SIM_FCFG1_FLASHDOZE_MASK      (0x2u)
+#define SIM_FCFG1_FLASHDOZE_SHIFT     (1)
+#define SIM_FCFG1_PFSIZE_MASK         (0xF000000u)
+#define SIM_FCFG1_PFSIZE_SHIFT        (24)
+#define SIM_FCFG1_PFSIZE(x)           ((((x)<<SIM_FCFG1_PFSIZE_SHIFT))&SIM_FCFG1_PFSIZE_MASK)
+
 /* Peripheral MCG base address */
 #define MCG                           (0x40064000u)                 /* Multipurpose Clock Generator Base Address */
-#define MCG_C1                        (MCG + 0x000u)                /* MCG Control 1 Register */
-#define MCG_C2                        (MCG + 0x001u)                /* MCG Control 2 Register */
-#define MCG_C3                        (MCG + 0x002u)                /* MCG Control 3 Register */
-#define MCG_C4                        (MCG + 0x003u)                /* MCG Control 4 Register */
-#define MCG_C5                        (MCG + 0x004u)                /* MCG Control 5 Register */
-#define MCG_C6                        (MCG + 0x005u)                /* MCG Control 6 Register */
-#define MCG_S                         (MCG + 0x006u)                /* MCG Status Register */
-#define MCG_SC                        (MCG + 0x008u)                /* MCG Status and Control Register */
+#define MCG_C1                        (0x000u)                      /* MCG Control 1 Register */
+#define MCG_C2                        ( 0x001u)                     /* MCG Control 2 Register */
+#define MCG_C3                        (0x002u)                      /* MCG Control 3 Register */
+#define MCG_C4                        (0x003u)                      /* MCG Control 4 Register */
+#define MCG_C5                        (0x004u)                      /* MCG Control 5 Register */
+#define MCG_C6                        (0x005u)                      /* MCG Control 6 Register */
+#define MCG_S                         (0x006u)                      /* MCG Status Register */
+#define MCG_SC                        (0x008u)                      /* MCG Status and Control Register */
 
 /* Peripheral MCG Register Masks */
 #define MCG_C1_IREFSTEN_MASK          (0x1u)
@@ -135,7 +159,7 @@
 
 /* Peripheral OSC0 base address */
 #define OSC0                          (0x40065000u)
-#define OSC0_CR                       (OSC0 + 0x000u)               /* OSC Control Register */
+#define OSC0_CR                       (0x000u)                      /* OSC Control Register */
 
 /* Peripheral OSC0 Register Masks */
 #define OSC_CR_SC16P_MASK             (0x1u)
@@ -153,10 +177,10 @@
 
 /* Peripheral LPTMR0 base address */
 #define LPTMR0                        (0x40040000u)
-#define LPTMR0_CSR                    (LPTMR0 + 0x000u)
-#define LPTMR0_PSR                    (LPTMR0 + 0x004u)
-#define LPTMR0_CMR                    (LPTMR0 + 0x008u)
-#define LPTMR0_CNR                    (LPTMR0 + 0x00Cu)
+#define LPTMR0_CSR                    (0x000u)
+#define LPTMR0_PSR                    (0x004u)
+#define LPTMR0_CMR                    (0x008u)
+#define LPTMR0_CNR                    (0x00Cu)
 
 /* Peripheral LPTMR0 Register Masks */
 #define LPTMR_CSR_TEN_MASK            (0x1u)
@@ -193,8 +217,8 @@
 #define PORTA                         (0x40049000u)
 #define PORTB                         (0x4004A000u)
 
-#define PORTA_PCR                     (PORTA + 0x00u)               /* PORTA Pin Control Register Register */
-#define PORTB_PCR                     (PORTB + 0x00u)               /* PORTB Pin Control Register Register */
+#define PORTA_PCR                     (0x00u)                       /* PORTA Pin Control Register Register */
+#define PORTB_PCR                     (0x00u)                       /* PORTB Pin Control Register Register */
 
 /* Peripheral PCR Register Masks */
 #define PORT_PCR_PS_MASK              (0x1u)
@@ -217,8 +241,8 @@
 #define PORT_PCR_ISF_SHIFT            (24)
 
 /* Peripheral ISFR Register Masks */
-#define PORTA_ISFR                    (PORTA + 0xA0)
-#define PORTB_ISFR                    (PORTB + 0xA0)
+#define PORTA_ISFR                    (0xA0)
+#define PORTB_ISFR                    (0xA0)
 #define PORT_ISFR_ISF_MASK            (0xFFFFFFFFu)
 #define PORT_ISFR_ISF_SHIFT           (0)
 #define PORT_ISFR_ISF(x)              ((((x)<<PORT_ISFR_ISF_SHIFT))&PORT_ISFR_ISF_MASK)
@@ -227,29 +251,29 @@
 #define FPTA                          (0xF80FF000u)                 /* FPTA Base Address */
 #define FPTB                          (0xF80FF040u)                 /* FPTB Base Address */
 
-#define FPTA_PDOR                     (FPTA + 0x00u)                /* Port Data Output Register */
-#define FPTA_PSOR                     (FPTA + 0x04u)                /* Port Set Output Register */
-#define FPTA_PCOR                     (FPTA + 0x08u)                /* Port Clear Output Register */
-#define FPTA_PTOR                     (FPTA + 0x0Cu)                /* Port Toggle Output Register */
-#define FPTA_PDIR                     (FPTA + 0x10u)                /* Port Data Input Register */
-#define FPTA_PDDR                     (FPTA + 0x14u)                /* Port Data Direction Register */
+#define FPTA_PDOR                     (0x00u)                       /* Port Data Output Register */
+#define FPTA_PSOR                     (0x04u)                       /* Port Set Output Register */
+#define FPTA_PCOR                     (0x08u)                       /* Port Clear Output Register */
+#define FPTA_PTOR                     (0x0Cu)                       /* Port Toggle Output Register */
+#define FPTA_PDIR                     (0x10u)                       /* Port Data Input Register */
+#define FPTA_PDDR                     (0x14u)                       /* Port Data Direction Register */
   
-#define FPTB_PDOR                     (FPTB + 0x00u)                /* Port Data Output Register */
-#define FPTB_PSOR                     (FPTB + 0x04u)                /* Port Set Output Register */
-#define FPTB_PCOR                     (FPTB + 0x08u)                /* Port Clear Output Register */
-#define FPTB_PTOR                     (FPTB + 0x0Cu)                /* Port Toggle Output Register */
-#define FPTB_PDIR                     (FPTB + 0x10u)                /* Port Data Input Register */
-#define FPTB_PDDR                     (FPTB + 0x14u)                /* Port Data Direction Register */
+#define FPTB_PDOR                     (0x00u)                       /* Port Data Output Register */
+#define FPTB_PSOR                     (0x04u)                       /* Port Set Output Register */
+#define FPTB_PCOR                     (0x08u)                       /* Port Clear Output Register */
+#define FPTB_PTOR                     (0x0Cu)                       /* Port Toggle Output Register */
+#define FPTB_PDIR                     (0x10u)                       /* Port Data Input Register */
+#define FPTB_PDDR                     (0x14u)                       /* Port Data Direction Register */
 
 /* Peripheral TPM base address */
 #define TPM                           (0x40038000u)                 /* TPM Base Address */
-#define TPM_SC                        (TPM + 0x00u)                 /* Status and Control */
-#define TPM_CNT                       (TPM + 0x04u)                 /* Counter */
-#define TPM_MOD                       (TPM + 0x08u)                 /* Modulo */
-#define TPM_C0SC                      (TPM + 0x0Cu + 0x00u)         /* Channel 0 Status and Control */
-#define TPM_C1SC                      (TPM + 0x0Cu + 0x08u)         /* Channel 1 Status and Control */
-#define TPM_C0V                       (TPM + 0x10u + 0x00u)         /* Channel 0 Value */
-#define TPM_C1V                       (TPM + 0x10u + 0x08u)         /* Channel 1 Value */
+#define TPM_SC                        (0x00u)                       /* Status and Control */
+#define TPM_CNT                       (0x04u)                       /* Counter */
+#define TPM_MOD                       (0x08u)                       /* Modulo */
+#define TPM_C0SC                      (0x0Cu + 0x00u)               /* Channel 0 Status and Control */
+#define TPM_C1SC                      (0x0Cu + 0x08u)               /* Channel 1 Status and Control */
+#define TPM_C0V                       (0x10u + 0x00u)               /* Channel 0 Value */
+#define TPM_C1V                       (0x10u + 0x08u)               /* Channel 1 Value */
 
 /* Peripheral TPM Register Masks */
 #define TPM_SC_PS_MASK                (0x7u)

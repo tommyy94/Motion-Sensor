@@ -30,25 +30,26 @@ PORTB_Init:
   push  {LR}                      /* Save return address */
 
   /* Enable clock gating & PTB0 MUX */
-  ldr   r4, =SIM_SCGC5            /* Load address */
+  ldr   r4, =SIM + SIM_SCGC5      /* Load address */
   ldr   r5, =SIM_SCGC5_PORTB_MASK /* Load value */
   ldr   r6, [r4]                  /* Load SIM_SCGC5 value */
-  ldr   r7, =PORTB_PCR            /* Load address */
+  ldr   r7, =PORTB                /* Load address */
   orrs  r6, r5                    /* SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK */
   ldr   r0, =(PORT_PCR_MUX(1)     /* Select GPIO */               \
             | PORT_PCR_IRQC(9))   /* Interrupt on rising edge, default pulldown */
   str   r6, [r4]                  /* Write SIM_SCGC5 */
   ldr   r5, =PORT_PCR_MUX(1)      /* Select GPIO */
-  str   r0, [r7, #0x00]           /* Write to PTB0: 0 * 0x04 = 0x00 offset */
+  str   r0, [r7, #PORTB_PCR       /* Write to PTB PCR */          \
+                + 0x00]           /* Write to PTB0: 0 * 0x04 = 0x00 offset */
 
   /* Initialize FPTB1 input & reset PORTB_ISFR */
-  ldr   r4, =FPTB_PDDR            /* Load address */
-  ldr   r0, =PORTB_ISFR           /* Load address */
+  ldr   r4, =FPTB                 /* Load base address */
+  ldr   r0, =PORTB + PORTB_ISFR   /* Load address */
   ldr   r1, =0xFFFFFFFF           /* Reset peripheral interrupt flags */
   str   r5, [r7, #0x04]           /* Write to PTB0: 1 * 0x04 = 0x04 offset */
   str   r1, [r0]                  /* PORTB_ISFR = 0xFFFFFFFF */
   movs  r6, #0x02                 /* Load FPTB1 */
-  ldr   r5, [r4]                  /* Load value */
+  ldr   r5, [r4, #FPTB_PDDR]      /* Load value */
   movs  r0, #PORTB_IRQn           /* Load interrupt vector position */
   bics  r5, r5, r6                /* Clear FPTB1 bit */
   movs  r1, #NVIC_IPRn_LEVEL1     /* Load interrupt priority */
@@ -77,11 +78,11 @@ PORTB_Init:
   .type PollButton, %function
   .global PollButton
 PollButton:
-  ldr   r4, =FPTB_PDIR            /* Load address */
+  ldr   r4, =FPTB                 /* Load base address */
   movs  r5, #0x02                 /* Pin number to poll */
 
 PollButtonLoop:
-  ldr   r6, [r4]                  /* Read switch state */
+  ldr   r6, [r4, #FPTB_PDIR]      /* Read switch state */
   tst   r6, r5                    /* FPTB_PDIR & FPTB1 */
   beq   PollButtonLoop            /* Loop until switch is pressed */
 
@@ -103,7 +104,7 @@ PollButtonLoop:
   .global PORTB_IRQHandler
 PORTB_IRQHandler:
   push  {LR}
-  ldr   r0, =PORTB_ISFR           /* Load address */
+  ldr   r0, =PORTB + PORTB_ISFR   /* Load address */
   ldr   r1, =PORT_ISFR_ISF(1)     /* Load mask */
   ldr   r2, [r0]                  /* Load PORTB_ISFR value */
   tst   r2, r1
