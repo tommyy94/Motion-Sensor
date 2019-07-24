@@ -74,6 +74,37 @@
 #define SIM_FCFG1_PFSIZE_SHIFT        (24)
 #define SIM_FCFG1_PFSIZE(x)           ((((x)<<SIM_FCFG1_PFSIZE_SHIFT))&SIM_FCFG1_PFSIZE_MASK)
 
+/* Peripheral SMC base address */
+#define SMC                           (0x4007E000u)                 /* System Mode Controller Base Address */
+#define SMC_PMPROT                    (0x000u)                      /* Power Mode Protection Register */
+#define SMC_PMCTRL                    (0x001u)                      /* Power Mode Control Register */
+#define SMC_STOPCTRL                  (0x002u)                      /* Stop Control Register */
+#define SMC_PMSTAT                    (0x003u)                      /* Power Mode Status Register */
+
+#define SMC_PMPROT_AVLLS_MASK         (0x2u)
+#define SMC_PMPROT_AVLLS_SHIFT        (1)
+#define SMC_PMPROT_AVLP_MASK          (0x20u)
+#define SMC_PMPROT_AVLP_SHIFT         (5)
+#define SMC_PMCTRL_STOPM_MASK         (0x7u)
+#define SMC_PMCTRL_STOPM_SHIFT        (0)
+#define SMC_PMCTRL_STOPM(x)           ((((x)<<SMC_PMCTRL_STOPM_SHIFT))&SMC_PMCTRL_STOPM_MASK)
+#define SMC_PMCTRL_STOPA_MASK         (0x8u)
+#define SMC_PMCTRL_STOPA_SHIFT        (3)
+#define SMC_PMCTRL_RUNM_MASK          (0x60u)
+#define SMC_PMCTRL_RUNM_SHIFT         (5)
+#define SMC_PMCTRL_RUNM(x)            ((((x)<<SMC_PMCTRL_RUNM_SHIFT))&SMC_PMCTRL_RUNM_MASK)
+#define SMC_STOPCTRL_VLLSM_MASK       (0x7u)
+#define SMC_STOPCTRL_VLLSM_SHIFT      (0)
+#define SMC_STOPCTRL_VLLSM(x)         ((((x)<<SMC_STOPCTRL_VLLSM_SHIFT))&SMC_STOPCTRL_VLLSM_MASK)
+#define SMC_STOPCTRL_PORPO_MASK       (0x20u)
+#define SMC_STOPCTRL_PORPO_SHIFT      (5)
+#define SMC_STOPCTRL_PSTOPO_MASK      (0xC0u)
+#define SMC_STOPCTRL_PSTOPO_SHIFT     (6)
+#define SMC_STOPCTRL_PSTOPO(x)        ((((x)<<SMC_STOPCTRL_PSTOPO_SHIFT))&SMC_STOPCTRL_PSTOPO_MASK)
+#define SMC_PMSTAT_PMSTAT_MASK        (0x7Fu)
+#define SMC_PMSTAT_PMSTAT_SHIFT       (0)
+#define SMC_PMSTAT_PMSTAT(x)          ((((x)<<SMC_PMSTAT_PMSTAT_SHIFT))&SMC_PMSTAT_PMSTAT_MASK)
+
 /* Peripheral MCG base address */
 #define MCG                           (0x40064000u)                 /* Multipurpose Clock Generator Base Address */
 #define MCG_C1                        (0x000u)                      /* MCG Control 1 Register */
