@@ -30,7 +30,7 @@ MCG_Init:
   str   r4, [r5]                      /* Write SIM_CLKDIV1 */
 
   /* Switch to FBI mode */
-  ldr   r6, =(MCG_C1_CLKS(0x00)       /* Output of FLL */                     \
+  ldr   r6, =(MCG_C1_CLKS(0x01)       /* Output of Internal Reference CLock */\
             | MCG_C1_FRDIV(0x00)      /* FLL External Reference Divider 0 */  \
             | MCG_C1_IREFS_MASK       /* Slow internal  reference clock */    \
             | MCG_C1_IRCLKEN_MASK)    /* MCGIRCLK active */
@@ -58,15 +58,15 @@ MCG_Init:
 
   /* Configure Oscillator module */
   ldr   r6, =OSC0                     /* Load OSC0 base address */
-  ldr   r4, =OSC_CR_ERCLKEN_MASK      /* Enable external reference clock */
+  movs  r4, #OSC_CR_ERCLKEN_MASK      /* Enable external reference clock */
   strb  r5, [r0, #MCG_C4]             /* Write mask to MCG_C4 */
   strb  r4, [r6, #OSC0_CR]            /* Write OSC0_CR */
 
   bl    CheckFLL
 
   /*  Wait until internal reference clock is selected as MCG output */
-  ldr   r4, =MCG_S_CLKST(2)           /* External reference clock selected */
-  ldr   r5, =(MCG_S_OSCINIT0_MASK     /* Wait until crystal oscillator initialized */ \
+  movs  r4, #MCG_S_CLKST(2)           /* External reference clock selected */
+  movs  r5, #(MCG_S_OSCINIT0_MASK     /* Wait until crystal oscillator initialized */ \
             | MCG_S_IRCST_MASK)       /* Internal reference clock sourced by fast clock (4 MHz IRC) */
 WaitMCGOutput:
   ldrb  r6, [r0, #MCG_S]              /* Refresh MCG_S value */
@@ -82,7 +82,7 @@ WaitMCGOutput:
             | MCG_C2_HGO0_MASK        /* High-gain oscillator mode */                             \
             | MCG_C2_EREFS0_MASK)     /* Oscillator requested reference select */
   /* Enable options: */
-  ldr   r6, =(MCG_C2_IRCS_MASK        /* Fast internal reference clock */                         \
+  movs  r6, #(MCG_C2_IRCS_MASK        /* Fast internal reference clock */                         \
             | MCG_C2_LP_MASK)         /* FLL disabled in bypass modes */
   ands  r4, r4, r5
   orrs  r4, r4, r6
@@ -92,7 +92,7 @@ WaitMCGOutput:
 
   /* Check that the fast external reference clock is selected. */
   /* r5: MCG_S address */
-  ldr   r4, =MCG_S_IREFST_MASK
+  movs  r4, #MCG_S_IREFST_MASK
 CheckExtClk:
   ldrb  r5, [r0, #MCG_S]              /* Load MCG_S value */
   tst   r5, r4
@@ -115,7 +115,7 @@ CheckExtClk:
   .thumb_func
   .type CheckFLL, %function
 CheckFLL:
-  ldr   r6, =MCG_S_IREFST_MASK
+  movs  r6, #MCG_S_IREFST_MASK
 
 CheckFLL_Loop:
   ldrb  r7, [r0, #MCG_S]
