@@ -20,17 +20,18 @@ _start:
   bl    COP_Disable
   bl    MCG_Init
   bl    LP_Init
-  bl    PORTB_Init
+  bl    PORTD_Init
   bl    TPM_Init
   bl    LPTMR_Init
 
-  bl    PollButton            /* To prevent lockout */
+  //bl    PollButton            /* To prevent lockout */
 
   cpsie i                     /* Clear PRIMASK */
+  bl    DriveLed
 
 loop:
-  dsb                         /* Wait until all outstanding memory accesses completed */
-  wfi                         /* Set deep sleep mode */
+  //dsb                         /* Wait until all outstanding memory accesses completed */
+  //wfi                         /* Set deep sleep mode */
   b     loop
 
 

@@ -50,6 +50,9 @@
 #define SIM_SCGC5_LPTMR_MASK          (0x1u)                        /* System Clock Gating Control 5 LPTMR0 Mask */
 #define SIM_SCGC5_PORTA_MASK          (0x0200u)                     /* System Clock Gating Control 5 PORTA Mask */
 #define SIM_SCGC5_PORTB_MASK          (0x0400u)                     /* System Clock Gating Control 5 PORTB Mask */
+#define SIM_SCGC5_PORTC_MASK          (0x0800u)                     /* System Clock Gating Control 5 PORTC Mask */
+#define SIM_SCGC5_PORTD_MASK          (0x1000u)                     /* System Clock Gating Control 5 PORTD Mask */
+#define SIM_SCGC5_PORTE_MASK          (0x2000u)                     /* System Clock Gating Control 5 PORTE Mask */
 #define SIM_SCGC6_TPM_MASK            (0x1000000u)                  /* System Clock Gating Control 6 TPM Mask */
 
 #define SIM_SOPT2_TPMSRC_MASK         (0x3000000u)
@@ -108,7 +111,7 @@
 /* Peripheral MCG base address */
 #define MCG                           (0x40064000u)                 /* Multipurpose Clock Generator Base Address */
 #define MCG_C1                        (0x000u)                      /* MCG Control 1 Register */
-#define MCG_C2                        ( 0x001u)                     /* MCG Control 2 Register */
+#define MCG_C2                        (0x001u)                      /* MCG Control 2 Register */
 #define MCG_C3                        (0x002u)                      /* MCG Control 3 Register */
 #define MCG_C4                        (0x003u)                      /* MCG Control 4 Register */
 #define MCG_C5                        (0x004u)                      /* MCG Control 5 Register */
@@ -244,14 +247,15 @@
 #define LPTMR_CNR_COUNTER_SHIFT       (0)
 #define LPTMR_CNR_COUNTER(x)          ((((x)<<LPTMR_CNR_COUNTER_SHIFT))&LPTMR_CNR_COUNTER_MASK)
 
-/* Peripheral PORTA base address */
+/* Peripheral PORT base address */
 #define PORTA                         (0x40049000u)
 #define PORTB                         (0x4004A000u)
-
-#define PORTA_PCR                     (0x00u)                       /* PORTA Pin Control Register Register */
-#define PORTB_PCR                     (0x00u)                       /* PORTB Pin Control Register Register */
+#define PORTC                         (0x4004B000u)
+#define PORTD                         (0x4004C000u)
+#define PORTE                         (0x4004D000u)
 
 /* Peripheral PCR Register Masks */
+#define PORT_PCR                      (0x00u)                       /* PORT Pin Control Register Register */
 #define PORT_PCR_PS_MASK              (0x1u)
 #define PORT_PCR_PS_SHIFT             (0)
 #define PORT_PCR_PE_MASK              (0x2u)
@@ -272,8 +276,7 @@
 #define PORT_PCR_ISF_SHIFT            (24)
 
 /* Peripheral ISFR Register Masks */
-#define PORTA_ISFR                    (0xA0)
-#define PORTB_ISFR                    (0xA0)
+#define PORT_ISFR                     (0xA0)                        /* Interrupt Status Flag Register */
 #define PORT_ISFR_ISF_MASK            (0xFFFFFFFFu)
 #define PORT_ISFR_ISF_SHIFT           (0)
 #define PORT_ISFR_ISF(x)              ((((x)<<PORT_ISFR_ISF_SHIFT))&PORT_ISFR_ISF_MASK)
@@ -281,20 +284,16 @@
 /* Peripheral FPTA base address */
 #define FPTA                          (0xF80FF000u)                 /* FPTA Base Address */
 #define FPTB                          (0xF80FF040u)                 /* FPTB Base Address */
+#define FPTC                          (0xF80FF080u)                 /* FPTC Base Address */
+#define FPTD                          (0xF80FF0C0u)                 /* FPTD Base Address */
+#define FPTE                          (0xF80FF100u)                 /* FPTE Base Address */
 
-#define FPTA_PDOR                     (0x00u)                       /* Port Data Output Register */
-#define FPTA_PSOR                     (0x04u)                       /* Port Set Output Register */
-#define FPTA_PCOR                     (0x08u)                       /* Port Clear Output Register */
-#define FPTA_PTOR                     (0x0Cu)                       /* Port Toggle Output Register */
-#define FPTA_PDIR                     (0x10u)                       /* Port Data Input Register */
-#define FPTA_PDDR                     (0x14u)                       /* Port Data Direction Register */
-  
-#define FPTB_PDOR                     (0x00u)                       /* Port Data Output Register */
-#define FPTB_PSOR                     (0x04u)                       /* Port Set Output Register */
-#define FPTB_PCOR                     (0x08u)                       /* Port Clear Output Register */
-#define FPTB_PTOR                     (0x0Cu)                       /* Port Toggle Output Register */
-#define FPTB_PDIR                     (0x10u)                       /* Port Data Input Register */
-#define FPTB_PDDR                     (0x14u)                       /* Port Data Direction Register */
+#define FPT_PDOR                      (0x00u)                       /* Port Data Output Register */
+#define FPT_PSOR                      (0x04u)                       /* Port Set Output Register */
+#define FPT_PCOR                      (0x08u)                       /* Port Clear Output Register */
+#define FPT_PTOR                      (0x0Cu)                       /* Port Toggle Output Register */
+#define FPT_PDIR                      (0x10u)                       /* Port Data Input Register */
+#define FPT_PDDR                      (0x14u)                       /* Port Data Direction Register */
 
 /* Peripheral TPM base address */
 #define TPM                           (0x40038000u)                 /* TPM Base Address */

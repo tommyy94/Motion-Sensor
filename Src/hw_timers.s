@@ -126,7 +126,7 @@ CheckFLL_Loop:
 
 
 /**
- * Initialize Timer/PWM Module.
+ * Initialize Timer/PWM Module. TPM0 Channel 2 selected.
  * Duty cycle 50%, period ~1 ms.
  *
  * Registers modified: r2, r3, r4, r5, r6, r7
@@ -145,24 +145,24 @@ TPM_Init:
 
   /* Enable PORTA clock gating */
   ldr   r4, =SIM + SIM_SCGC5        /* Load address */
-  ldr   r5, =SIM_SCGC5_PORTA_MASK   /* Load mask value */
+  ldr   r5, =SIM_SCGC5_PORTE_MASK   /* Load mask value */
   ldr   r6, [r4]                    /* Read SIM_SCGC5 */
   movs  r7, #0                      /* Clear register */
-  orrs  r6, r5                      /* SIM_SCGC5 |= SIM_SCGC5_PORTA_MASK */
+  orrs  r6, r5                      /* SIM_SCGC5 |= SIM_SCGC5_PORTE_MASK */
   adds  r7, r4, #0x04               /* SIM_SCGC6 = SIM_SCGC5 + offset 0x04, arithmetic is faster than memory access */
   str   r6, [r4]                    /* Write SIM_SCGC5 */
 
   /* Enable TPM clock gating */
   ldr   r5, =SIM_SCGC6_TPM_MASK     /* Load mask value */
   ldr   r6, [r7]                    /* r7: SIM_SCGC6 */
-  ldr   r4, =PORTA                  /* Load PORTA base address */
+  ldr   r4, =PORTE                  /* Load PORTE base address */
   orrs  r6, r5                      /* SIM_SCGC6 |= SIM_SCGC6_TPM_MASK */
 
   /* Select pin multiplexer */
-  ldr   r3, =PORT_PCR_MUX(2)        /* Select TPM */ 
+  ldr   r3, =PORT_PCR_MUX(3)        /* Select TPM0 CH2 */
   str   r6, [r7]                    /* Write SIM_SCGC6 */
-  str   r3, [r4, #PORTA_PCR         /* Write to PORTA PCR */ \
-                + (0x04 * 6)]       /* Write to PTA6: 0x06 * 0x04 = 0x18 offset */
+  str   r3, [r4, #PORT_PCR          /* Write to PORTE PCR */ \
+                + (0x04 * 29)]      /* Write to PTE29: 29 * 0x04 = 0x74 offset */
 
   /* Set clock source for TPM */
   ldr   r6, =TPM                    /* Load TPM base address */
@@ -233,7 +233,7 @@ LPTMR_Init:
   str   r6, [r4, #LPTMR0_PSR]       /* Write LPTMR0_PSR */
 
   /* Set compare value */
-  movs  r0, #LPTimer_IRQn           /* Load argument 1 of */
+  movs  r0, #LPTMR0_IRQn            /* Load argument 1 of */
   str   r5, [r4, #LPTMR0_CMR]       /* Write LPTMR0_CMR */
   movs  r1, #NVIC_IPRn_LEVEL1       /* Load interrupt priority */
 
@@ -242,6 +242,7 @@ LPTMR_Init:
   bl    NVIC_SetPriority
   bl    NVIC_ClearPendingIRQ
   bl    NVIC_EnableIRQ
+
 
   pop   {PC}
 
