@@ -58,6 +58,7 @@
 #define SIM_SOPT2_TPMSRC_MASK         (0x3000000u)
 #define SIM_SOPT2_TPMSRC_SHIFT        (24)
 #define SIM_SOPT2_TPMSRC(x)           ((((x)<<SIM_SOPT2_TPMSRC_SHIFT))&SIM_SOPT2_TPMSRC_MASK)
+#define SIM_SOPT2_PLLFLLSEL_MASK      (0x10000u)
 #define SIM_SOPT2_UART0SRC_MASK       (0xC000000u)
 #define SIM_SOPT2_UART0SRC_SHIFT      (26)
 #define SIM_SOPT2_UART0SRC(x)         ((((x)<<SIM_SOPT2_UART0SRC_SHIFT))&SIM_SOPT2_UART0SRC_MASK)
@@ -302,8 +303,11 @@
 #define TPM_MOD                       (0x08u)                       /* Modulo */
 #define TPM_C0SC                      (0x0Cu + 0x00u)               /* Channel 0 Status and Control */
 #define TPM_C1SC                      (0x0Cu + 0x08u)               /* Channel 1 Status and Control */
+#define TPM_C2SC                      (0x0Cu + 0x10u)               /* Channel 1 Status and Control */
 #define TPM_C0V                       (0x10u + 0x00u)               /* Channel 0 Value */
 #define TPM_C1V                       (0x10u + 0x08u)               /* Channel 1 Value */
+#define TPM_C2V                       (0x10u + 0x10u)               /* Channel 2 Value */
+#define TPM_CONF                      (0x84)                        /* Configuration */
 
 /* Peripheral TPM Register Masks */
 #define TPM_SC_PS_MASK                (0x7u)

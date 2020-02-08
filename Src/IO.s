@@ -48,8 +48,8 @@ PORTD_Init:
   ldr   r4, =FPTD                 /* Load base address */
   ldr   r0, =PORTD + PORT_ISFR    /* Load address */
   ldr   r1, =0xFFFFFFFF           /* Reset peripheral interrupt flags */
-  str   r5, [r7, #0x04            /* Write to PTD3: */            \
-               + (3 * 0x04)]      /* 0x03 * 0x04 = 0x0C offset */
+  str   r5, [r7, #PORT_PCR        /* Write to PTD3: */            \
+               + (3 * 0x04)]      /* 3 * 0x04 = 0x0C offset */
   str   r1, [r0]                  /* PORTD_ISFR = 0xFFFFFFFF */
   movs  r6, #(1 << 3)             /* Load FPTD3 */
   ldr   r5, [r4, #FPT_PDDR]       /* Load value */
@@ -85,7 +85,7 @@ PORTD_Init:
   .global PollButton
 PollButton:
   ldr   r4, =FPTD                 /* Load base address */
-  movs  r5, #0x02                 /* Pin number to poll */
+  movs  r5, #(1 << 3)             /* Pin number to poll */
 
 PollButtonLoop:
   ldr   r6, [r4, #FPT_PDIR]       /* Read switch state */
@@ -111,7 +111,7 @@ PollButtonLoop:
 PORTD_IRQHandler:
   push  {LR}
   ldr   r0, =PORTD + PORT_ISFR    /* Load address */
-  ldr   r1, =PORT_ISFR_ISF(1)     /* Load mask */
+  ldr   r1, =PORT_ISFR_ISF(4)     /* Load mask */
   ldr   r2, [r0]                  /* Load PORTD_ISFR value */
   tst   r2, r1
   beq   PORTD_IRQHandler_End      /* If flag == zero => goto end */

@@ -17,17 +17,13 @@ _start:
   dsb                         /* Wait until all outstanding memory accesses completed */
   cpsid i                     /* Set PRIMASK */
 
-  bl    COP_Disable
-  bl    MCG_Init
-  bl    LP_Init
+  bl    SystemInit
   bl    PORTD_Init
   bl    TPM_Init
-  bl    LPTMR_Init
 
-  //bl    PollButton            /* To prevent lockout */
+  bl    PollButton            /* To prevent lockout */
 
   cpsie i                     /* Clear PRIMASK */
-  bl    DriveLed
 
 loop:
   //dsb                         /* Wait until all outstanding memory accesses completed */

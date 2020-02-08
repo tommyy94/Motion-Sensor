@@ -126,74 +126,6 @@ CheckFLL_Loop:
 
 
 /**
- * Initialize Timer/PWM Module. TPM0 Channel 2 selected.
- * Duty cycle 50%, period ~1 ms.
- *
- * Registers modified: r2, r3, r4, r5, r6, r7
- *
- * Argument:  None
- * Return:    None
- * Todo       Figure out TPM_MOD register
- */
-  .eabi_attribute Tag_ABI_align_preserved, 1
-  .thumb
-  .thumb_func
-  .type TPM_Init, %function
-  .global TPM_Init
-TPM_Init:
-  /* No need to save argument registers in init section */
-
-  /* Enable PORTA clock gating */
-  ldr   r4, =SIM + SIM_SCGC5        /* Load address */
-  ldr   r5, =SIM_SCGC5_PORTE_MASK   /* Load mask value */
-  ldr   r6, [r4]                    /* Read SIM_SCGC5 */
-  movs  r7, #0                      /* Clear register */
-  orrs  r6, r5                      /* SIM_SCGC5 |= SIM_SCGC5_PORTE_MASK */
-  adds  r7, r4, #0x04               /* SIM_SCGC6 = SIM_SCGC5 + offset 0x04, arithmetic is faster than memory access */
-  str   r6, [r4]                    /* Write SIM_SCGC5 */
-
-  /* Enable TPM clock gating */
-  ldr   r5, =SIM_SCGC6_TPM_MASK     /* Load mask value */
-  ldr   r6, [r7]                    /* r7: SIM_SCGC6 */
-  ldr   r4, =PORTE                  /* Load PORTE base address */
-  orrs  r6, r5                      /* SIM_SCGC6 |= SIM_SCGC6_TPM_MASK */
-
-  /* Select pin multiplexer */
-  ldr   r3, =PORT_PCR_MUX(3)        /* Select TPM0 CH2 */
-  str   r6, [r7]                    /* Write SIM_SCGC6 */
-  str   r3, [r4, #PORT_PCR          /* Write to PORTE PCR */ \
-                + (0x04 * 29)]      /* Write to PTE29: 29 * 0x04 = 0x74 offset */
-
-  /* Set clock source for TPM */
-  ldr   r6, =TPM                    /* Load TPM base address */
-  ldr   r3, [r6]                    /* Read TPM_MOD value */
-  subs  r7, r7, #0x38               /* Decremement r7 to SIM_SOPT2 */
-  ldr   r5, =SIM_SOPT2_TPMSRC(1)    /* MCGFLLCLK as clock source */
-  ldr   r4, =5000                   /* Load immediate value */
-  orrs  r3, r3, r4                  /* TPM_MOD |= 5000 */
-  str   r5,  [r7]                   /* Write SIM_SOPT2 */
-
-  /* Load counter */
-  str   r3, [r6, #TPM_MOD]          /* Write TPM_MOD */
-
-  /* Set SC register */
-  ldr   r5, =(TPM_SC_CPWMS_MASK     /* Up-down counting mode */   \
-            | TPM_SC_PS(1))         /* Prescale divide by 2 */
-  ldr   r7, =(TPM_CnSC_MSB_MASK     /* Edge-aligned PWM: */       \
-            | TPM_CnSC_ELSA_MASK)   /* Clear output on match, set output on reload */
-  str   r5, [r6, #TPM_SC]           /* Write TPM_SC */
-
-  /* Configure PWM */     
-  ldr   r2, =2500 - 1               /* Set initial duty cycle */   
-  str   r7, [r6, #TPM_C0SC]         /* Write TPM_C0SC */
-
-  /* Set TPM value */
-  str   r2, [r6, #TPM_C0V]          /* Write TPM_C0V */
-
-  bx    LR
-
-
-/**
  * Initialize Low Power Timer module. It is used as a
  * wakeup source and it triggers after 10 ms.
  * Use LPO = 1 kHz => prescaler 2, freq. = 500 kHz.
@@ -268,6 +200,84 @@ DriveLed:
   str   r5, [r6, #TPM_SC]           /* Start PWM */
 
   bx    LR
+
+
+
+
+
+/**
+ * Initialize Timer/PWM Module. TPM0 Channel 2 selected.
+ * Duty cycle 50%, period ~1 ms.
+ *
+ * Registers modified: r2, r3, r4, r5, r6, r7
+ *
+ * Argument:  None
+ * Return:    None
+ * Todo       Figure out TPM_MOD register
+ */
+  .eabi_attribute Tag_ABI_align_preserved, 1
+  .thumb
+  .thumb_func
+  .type TPM_Init, %function
+  .global TPM_Init
+TPM_Init:
+  /* No need to save argument registers in init section */
+  /* Enable PORTA clock gating */
+  ldr   r4, =SIM + SIM_SCGC5        /* Load address */
+  ldr   r5, =SIM_SCGC5_PORTE_MASK   /* Load mask value */
+  ldr   r6, [r4]                    /* Read SIM_SCGC5 */
+  movs  r7, #0                      /* Clear register */
+  orrs  r6, r5                      /* SIM_SCGC5 |= SIM_SCGC5_PORTE_MASK */
+  adds  r7, r4, #0x04               /* SIM_SCGC6 = SIM_SCGC5 + offset 0x04, arithmetic is faster than memory access */
+  str   r6, [r4]                    /* Write SIM_SCGC5 */
+
+  /* Enable TPM clock gating */
+  ldr   r5, =SIM_SCGC6_TPM_MASK     /* Load mask value */
+  ldr   r6, [r7]                    /* r7: SIM_SCGC6 */
+  ldr   r4, =PORTE                  /* Load PORTE base address */
+  orrs  r6, r5                      /* SIM_SCGC6 |= SIM_SCGC6_TPM_MASK */
+
+  /* Select pin multiplexer */
+  ldr   r3, =PORT_PCR_MUX(3)        /* Select TPM0 CH2 */
+  str   r6, [r7]                    /* Write SIM_SCGC6 */
+  str   r3, [r4, #PORT_PCR          /* Write to PORTE PCR */ \
+                + (0x04 * 29)]      /* Write to PTE29: 29 * 0x04 = 0x74 offset */
+
+  /* Set clock source for TPM */
+  ldr   r6, =TPM                    /* Load TPM base address */
+  subs  r7, r7, #0x38               /* Decremement r7 to SIM_SOPT2 */
+  ldr   r5, =SIM_SOPT2_TPMSRC(1) |  /* MCGFLLCLK as clock source */ \
+            SIM_SOPT2_PLLFLLSEL_MASK/* MCGPLLCLK clock with fixed divide by tw */
+  ldr   r4, =5000                   /* Load immediate value */
+  str   r5,  [r7]                   /* Write SIM_SOPT2 */
+
+  /* Load counter */
+  ldr   r3, [r6]                    /* Read TPM_MOD value */
+  orrs  r3, r3, r4                  /* TPM_MOD |= 5000 */
+  str   r3, [r6, #TPM_MOD]          /* Write TPM_MOD */
+
+  /* Set SC register */
+  ldr   r5, =(TPM_SC_CPWMS_MASK     /* Up-down counting mode */   \
+            | TPM_SC_PS(1))         /* Prescale divide by 2 */
+  str   r5, [r6, #TPM_SC]           /* Write TPM_SC */
+
+  /* Set C2SC register */
+  ldr   r7, =(TPM_CnSC_MSB_MASK     /* Edge-aligned PWM: */       \
+            | TPM_CnSC_ELSA_MASK)   /* Clear output on match, set output on reload */
+  str   r7, [r6, #TPM_C2SC]         /* Write TPM_C2SC */
+
+  /* Set TPM value */
+  ldr   r2, =2500 - 1               /* Set initial duty cycle */ 
+  str   r2, [r6, #TPM_C2V]          /* Write TPM_C0V */
+
+  /* Continue in debug mode */
+  ldr   r3, =TPM_CONF_DBGMODE(3)
+  adds  r6, r6, #TPM_CONF
+  str   r3, [r6]                    /* Write TPM_CONF */
+
+  bx    LR
+
+
 
 
   .end
