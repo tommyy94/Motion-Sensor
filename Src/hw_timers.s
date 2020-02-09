@@ -129,7 +129,7 @@ CheckFLL_Loop:
  * Initialize Low Power Timer module. It is used to
  * measure Motion Senser trigger pulse duration.
  * 100 ms pulse is recognized as movement.
- * Use LPO = 1 kHz => prescaler 2, freq. = 500 kHz.
+ * Use LPO = 1 kHz => prescaler 2, freq. = 500 Hz.
  * Doesn't enable the timer.
  *
  * Registers modified: r2, r3, r4, r5, r6, r7
@@ -161,23 +161,17 @@ LPTMR_Init:
   movs  r6, #(LPTMR_PSR_PRESCALE(0) /* Prescaler 2 */                     \
             | LPTMR_PSR_PBYP_MASK   /* Bypass prescaler/glitch filter */  \
             | LPTMR_PSR_PCS(1))     /* Clock source 1 kHz LPO */
-  ldr   r5, =LPTMR_CMR_COMPARE(50)  /* Compare match on 10 ms */
   str   r6, [r4, #LPTMR0_PSR]       /* Write LPTMR0_PSR */
-
-  /* Set compare value */
-  ldr   r3, =0x0100
-  str   r3, [r4, #LPTMR0_CMR]
-
-  movs  r0, #LPTMR0_IRQn           /* Load interrupt vector position */
-  bics  r5, r5, r6                 /* Clear FPTD3 bit */
-  movs  r1, #NVIC_IPRn_LEVEL1      /* Load interrupt priority */
-  str   r5, [r4]                   /* Write FPTD_PDDR */
+  movs  r5, #LPTMR_CMR_COMPARE(100) /* Compare match on 100 ms */
+  str   r5, [r4, #LPTMR0_CMR]       /* Write LPTMR0_CMR */
 
   /**
    * Initialize PORTD NVIC
    *  r0: Interrupt vector position
    *  r1: interrupt priority
    */
+  movs  r0, #LPTMR0_IRQn           /* Load interrupt vector position */
+  movs  r1, #NVIC_IPRn_LEVEL1      /* Load interrupt priority */
   bl    NVIC_SetPriority
   bl    NVIC_ClearPendingIRQ
   bl    NVIC_EnableIRQ
@@ -209,11 +203,11 @@ LPTMR0_IRQHandler:
   bics  r4, r4, r6
   str   r4, [r3, #LPTMR0_CSR]       /* Write LPTMR0_CSR */
 
-  /* Check if IRQ line HIGH after >= 100 ms */
-  movs  r5, #(1 << 3)             /* Pin number to read */
-  ldr   r4, =FPTD                 /* Load base address */
-  ldr   r6, [r4, #FPT_PDIR]       /* Read IRQ pulse state */
-  tst   r6, r5                    /* Test FPTD_PDIR & FPTD3 */
+  /* Check if IRQ pulse >= 100 ms */
+  movs  r5, #(1 << 2)               /* Pin number to read */
+  ldr   r4, =FPTD                   /* Load base address */
+  ldr   r6, [r4, #FPT_PDIR]         /* Read IRQ pulse state */
+  tst   r6, r5                      /* Test FPTD_PDIR & FPTD2 */
   beq   End_LPTMR0_IRQHandler
 
   /* Lights on */

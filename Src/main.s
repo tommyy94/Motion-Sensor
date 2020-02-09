@@ -28,7 +28,7 @@ _start:
 
 loop:
   dsb                         /* Wait until all outstanding memory accesses completed */
-  //wfi                         /* Set deep sleep mode */
+  wfi                         /* Set sleep mode */
   b     loop
 
 

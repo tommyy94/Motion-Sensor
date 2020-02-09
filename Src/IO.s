@@ -42,7 +42,7 @@ PORTD_Init:
   str   r6, [r4]                  /* Write SIM_SCGC5 */
   ldr   r5, =PORT_PCR_MUX(1)      /* Select GPIO */
   str   r0, [r7, #PORT_PCR        /* Write to PTD PCR */          \
-                + (0x02 * 0x04)]  /* Write to PTD2: 0x02 * 0x04 = 0x08 offset */
+                + (2 * 0x04)]     /* Write to PTD2: 2 * 0x04 = 0x08 offset */
 
   /* Initialize FPTD3 input & reset PORTD_ISFR */
   ldr   r4, =FPTD                 /* Load base address */
@@ -110,6 +110,8 @@ PollButtonLoop:
   .global PORTD_IRQHandler
 PORTD_IRQHandler:
   push  {LR}
+
+  /* Clear interrupt flag */
   ldr   r0, =PORTD + PORT_ISFR    /* Load address */
   ldr   r1, =PORT_ISFR_ISF(4)     /* Load mask */
   ldr   r2, [r0]                  /* Load PORTD_ISFR value */
@@ -117,6 +119,7 @@ PORTD_IRQHandler:
   beq   PORTD_IRQHandler_End      /* If flag == zero => goto end */
   str   r1, [r0]                  /* Clear pending interrupts in peripheral */
 
+  /* Start LPTMR0 to measure pulse width */
   ldr   r4, =LPTMR0
   movs  r3, #(LPTMR_CSR_TEN_MASK  /* Enable LTPMR0 */     \
             | LPTMR_CSR_TIE_MASK) /* Enable interrupts */
