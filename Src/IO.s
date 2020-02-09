@@ -102,7 +102,7 @@ PollButtonLoop:
  *
  * Argument:  None
  * Return:    None
- * Todo:      Implement filter in front of sensor + disable IRQ for 45s.
+ * Todo:      Sample period 100 ms + disable IRQ for 45s.
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb_func
@@ -116,7 +116,11 @@ PORTD_IRQHandler:
   tst   r2, r1
   beq   PORTD_IRQHandler_End      /* If flag == zero => goto end */
   str   r1, [r0]                  /* Clear pending interrupts in peripheral */
-  bl    DriveLed
+
+  ldr   r4, =LPTMR0
+  movs  r3, #(LPTMR_CSR_TEN_MASK  /* Enable LTPMR0 */     \
+            | LPTMR_CSR_TIE_MASK) /* Enable interrupts */
+  str   r3, [r4, #LPTMR0_CSR]
 
 PORTD_IRQHandler_End:
   pop   {PC}

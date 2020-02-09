@@ -20,13 +20,14 @@ _start:
   bl    SystemInit
   bl    PORTD_Init
   bl    TPM_Init
+  bl    LPTMR_Init
 
   bl    PollButton            /* To prevent lockout */
 
   cpsie i                     /* Clear PRIMASK */
 
 loop:
-  //dsb                         /* Wait until all outstanding memory accesses completed */
+  dsb                         /* Wait until all outstanding memory accesses completed */
   //wfi                         /* Set deep sleep mode */
   b     loop
 

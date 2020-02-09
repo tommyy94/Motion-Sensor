@@ -126,8 +126,9 @@ CheckFLL_Loop:
 
 
 /**
- * Initialize Low Power Timer module. It is used as a
- * wakeup source and it triggers after 10 ms.
+ * Initialize Low Power Timer module. It is used to
+ * measure Motion Senser trigger pulse duration.
+ * 100 ms pulse is recognized as movement.
  * Use LPO = 1 kHz => prescaler 2, freq. = 500 kHz.
  * Doesn't enable the timer.
  *
@@ -146,36 +147,79 @@ LPTMR_Init:
 
   /* Enable LPTMR0 clock gating */
   ldr   r6, =SIM + SIM_SCGC5        /* Load SIM_SCGC5 base address */
-  ldr   r7, =SIM_SCGC5_LPTMR_MASK   /* Enable LPTMR0 */
+  movs  r7, #SIM_SCGC5_LPTMR_MASK   /* Enable LPTMR0 */
   ldr   r0, [r6]                    /* Load SIM_SCGC5 value */
+  orrs  r7, r0, r7                  /* SIM_SCGC5 |= SIM_SCGC5_LPTMR_MASK */
+  str   r7, [r6]                    /* Write SIM_SCGC5 */
 
   /* Reset CSR */
   ldr   r4, =LPTMR0                 /* Load LPTMR0 base address */
-  orrs  r7, r0, r7                  /* SIM_SCGC5 |= SIM_SCGC5_LPTMR_MASK */
-  ldr   r5, =(LPTMR_CSR_TIE_MASK    /* Timer Interrupt Enable */          \
-            | LPTMR_CSR_TCF_MASK)   /* Clear compare flag */
-  str   r7, [r6]                    /* Write SIM_SCGC5 */
-  str   r5, [r4, #LPTMR0_CSR]       /* Write LPTMR0_CSR */
+  movs  r3, 0x00
+  str   r3, [r4, #LPTMR0_CSR]       /* Clear LPTMR0_CSR */
 
   /* Set clock frequency */
-  ldr   r6, =(LPTMR_PSR_PRESCALE(0) /* Prescaler 2 */                     \
+  movs  r6, #(LPTMR_PSR_PRESCALE(0) /* Prescaler 2 */                     \
             | LPTMR_PSR_PBYP_MASK   /* Bypass prescaler/glitch filter */  \
             | LPTMR_PSR_PCS(1))     /* Clock source 1 kHz LPO */
   ldr   r5, =LPTMR_CMR_COMPARE(50)  /* Compare match on 10 ms */
   str   r6, [r4, #LPTMR0_PSR]       /* Write LPTMR0_PSR */
 
   /* Set compare value */
-  movs  r0, #LPTMR0_IRQn            /* Load argument 1 of */
-  str   r5, [r4, #LPTMR0_CMR]       /* Write LPTMR0_CMR */
-  movs  r1, #NVIC_IPRn_LEVEL1       /* Load interrupt priority */
+  ldr   r3, =0x0100
+  str   r3, [r4, #LPTMR0_CMR]
 
-  /* Initialize LPTMR0 NVIC */
-  /* r0: Interrupt vector position, r1: interrupt priority */
+  movs  r0, #LPTMR0_IRQn           /* Load interrupt vector position */
+  bics  r5, r5, r6                 /* Clear FPTD3 bit */
+  movs  r1, #NVIC_IPRn_LEVEL1      /* Load interrupt priority */
+  str   r5, [r4]                   /* Write FPTD_PDDR */
+
+  /**
+   * Initialize PORTD NVIC
+   *  r0: Interrupt vector position
+   *  r1: interrupt priority
+   */
   bl    NVIC_SetPriority
   bl    NVIC_ClearPendingIRQ
   bl    NVIC_EnableIRQ
 
+  pop   {PC}
 
+
+/**
+ * LPTMR0 Interrupt Request Handler. Set interrupt flag.
+ *
+ * Registers modified: None
+ *
+ * Argument:  None
+ * Return:    None
+ */
+  .eabi_attribute Tag_ABI_align_preserved, 1
+  .thumb_func
+  .type LPTMR0_IRQHandler, %function
+  .global LPTMR0_IRQHandler
+LPTMR0_IRQHandler:
+  push  {LR}
+
+  /* Clear interrupt flag & stop timer */
+  ldr   r3, =LPTMR0                 /* Load Low Power Timer 0 base address */
+  movs  r5, #LPTMR_CSR_TCF_MASK     /* Clear interrupt flag */
+  ldr   r4, [r3, #LPTMR0_CSR]       /* Read register */
+  movs  r6, #LPTMR_CSR_TEN_MASK     /* Disable timer */
+  orrs  r4, r4, r5
+  bics  r4, r4, r6
+  str   r4, [r3, #LPTMR0_CSR]       /* Write LPTMR0_CSR */
+
+  /* Check if IRQ line HIGH after >= 100 ms */
+  movs  r5, #(1 << 3)             /* Pin number to read */
+  ldr   r4, =FPTD                 /* Load base address */
+  ldr   r6, [r4, #FPT_PDIR]       /* Read IRQ pulse state */
+  tst   r6, r5                    /* Test FPTD_PDIR & FPTD3 */
+  beq   End_LPTMR0_IRQHandler
+
+  /* Lights on */
+  bl    DriveLed
+
+End_LPTMR0_IRQHandler:
   pop   {PC}
 
 
@@ -194,15 +238,12 @@ LPTMR_Init:
   .global DriveLed
 DriveLed:
   ldr   r6, =TPM                    /* Load TPM base address */
-  ldr   r7, =TPM_SC_CMOD(1)         /* Load mask */
+  movs  r7, #TPM_SC_CMOD(1)         /* Load mask */
   ldr   r5, [r6, #TPM_SC]           /* Load TPM_SC value */
   orrs  r5, r5, r7                  /* Select clock mode enabling TPM */
   str   r5, [r6, #TPM_SC]           /* Start PWM */
 
   bx    LR
-
-
-
 
 
 /**
@@ -257,12 +298,12 @@ TPM_Init:
   str   r3, [r6, #TPM_MOD]          /* Write TPM_MOD */
 
   /* Set SC register */
-  ldr   r5, =(TPM_SC_CPWMS_MASK     /* Up-down counting mode */   \
+  movs  r5, #(TPM_SC_CPWMS_MASK     /* Up-down counting mode */   \
             | TPM_SC_PS(1))         /* Prescale divide by 2 */
   str   r5, [r6, #TPM_SC]           /* Write TPM_SC */
 
   /* Set C2SC register */
-  ldr   r7, =(TPM_CnSC_MSB_MASK     /* Edge-aligned PWM: */       \
+  movs  r7, #(TPM_CnSC_MSB_MASK     /* Edge-aligned PWM: */       \
             | TPM_CnSC_ELSA_MASK)   /* Clear output on match, set output on reload */
   str   r7, [r6, #TPM_C2SC]         /* Write TPM_C2SC */
 
@@ -271,13 +312,11 @@ TPM_Init:
   str   r2, [r6, #TPM_C2V]          /* Write TPM_C0V */
 
   /* Continue in debug mode */
-  ldr   r3, =TPM_CONF_DBGMODE(3)
+  movs  r3, #TPM_CONF_DBGMODE(3)
   adds  r6, r6, #TPM_CONF
   str   r3, [r6]                    /* Write TPM_CONF */
 
   bx    LR
-
-
 
 
   .end
