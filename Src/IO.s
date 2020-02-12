@@ -102,15 +102,12 @@ PollButtonLoop:
  *
  * Argument:  None
  * Return:    None
- * Todo:      Sample period 100 ms + disable IRQ for 45s.
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb_func
   .type PORTD_IRQHandler, %function
   .global PORTD_IRQHandler
 PORTD_IRQHandler:
-  push  {LR}
-
   /* Clear interrupt flag */
   ldr   r0, =PORTD + PORT_ISFR    /* Load address */
   ldr   r1, =PORT_ISFR_ISF(4)     /* Load mask */
@@ -126,7 +123,7 @@ PORTD_IRQHandler:
   str   r3, [r4, #LPTMR0_CSR]
 
 PORTD_IRQHandler_End:
-  pop   {PC}
+  bx    LR
 
 
   .end

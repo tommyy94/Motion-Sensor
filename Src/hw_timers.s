@@ -2,6 +2,10 @@
 #include "peripherals.h"
 
 
+  .bss
+  .type   LPTMR0_Flag, %object
+  .lcomm  LPTMR0_Flag, 4
+
   .syntax unified
   .thumb
   .text
@@ -145,6 +149,11 @@ CheckFLL_Loop:
 LPTMR_Init:
   push  {LR}
 
+  /* Initialize LPTMR0_Flag flag */
+  ldr   r3, =LPTMR0_Flag
+  movs  r4, 1
+  str   r4, [r3]
+
   /* Enable LPTMR0 clock gating */
   ldr   r6, =SIM + SIM_SCGC5        /* Load SIM_SCGC5 base address */
   movs  r7, #SIM_SCGC5_LPTMR_MASK   /* Enable LPTMR0 */
@@ -195,23 +204,59 @@ LPTMR0_IRQHandler:
   push  {LR}
 
   /* Clear interrupt flag & stop timer */
-  ldr   r3, =LPTMR0                 /* Load Low Power Timer 0 base address */
-  movs  r5, #LPTMR_CSR_TCF_MASK     /* Clear interrupt flag */
-  ldr   r4, [r3, #LPTMR0_CSR]       /* Read register */
-  movs  r6, #LPTMR_CSR_TEN_MASK     /* Disable timer */
-  orrs  r4, r4, r5
-  bics  r4, r4, r6
-  str   r4, [r3, #LPTMR0_CSR]       /* Write LPTMR0_CSR */
+  ldr   r0, =LPTMR0                 /* Load Low Power Timer 0 base address */
+  movs  r1, #LPTMR_CSR_TCF_MASK     /* Clear interrupt flag */
+  ldr   r2, [r0, #LPTMR0_CSR]       /* Read register */
+  movs  r3, #LPTMR_CSR_TEN_MASK     /* Disable timer */
+  orrs  r2, r2, r1
+  bics  r2, r2, r3
+  str   r2, [r0, #LPTMR0_CSR]       /* Write LPTMR0_CSR */
 
-  /* Check if IRQ pulse >= 100 ms */
-  movs  r5, #(1 << 2)               /* Pin number to read */
-  ldr   r4, =FPTD                   /* Load base address */
-  ldr   r6, [r4, #FPT_PDIR]         /* Read IRQ pulse state */
-  tst   r6, r5                      /* Test FPTD_PDIR & FPTD2 */
+CheckFlag: /* Check if flag set */
+  ldr   r3, =LPTMR0_Flag
+  ldr   r3, [r3]
+  movs  r2, 1
+  cmp   r3, r2
+  bne   StopTimer
+
+CheckPulse: /* Check if IRQ pulse >= 100 ms */
+  ldr   r3, =FPTD                   /* Load base address */
+  ldr   r3, [r3, #FPT_PDIR]         /* Read IRQ pulse state */
+  movs  r2, #(1 << 2)               /* Pin number to read */
+  tst   r3, r2                      /* Test FPTD_PDIR & FPTD2 */
   beq   End_LPTMR0_IRQHandler
 
-  /* Lights on */
-  bl    DriveLed
+  /* Led on if IRQ source is sensor pulse */
+  bl    DriveLed                    /* LED on */
+  ldr   r3, =LPTMR0_Flag
+  movs  r1, 0
+  str   r1, [r3]                    /* Update flag */
+
+  /* Start LED timer */
+  ldr   r2, =LPTMR_CMR_COMPARE(5000)/* Compare match on 5 s */
+  str   r2, [r0, #LPTMR0_CMR]       /* Write LPTMR0_CMR */
+
+  ldr   r1, [r0, #LPTMR0_CSR]       /* Read register */
+  movs  r3, #LPTMR_CSR_TEN_MASK     /* Enable timer */
+  orrs  r1, r1, r3                  /* LPTMR0 |= LPTMR0_CSR_TEN_MASK */
+  str   r1, [r0, #LPTMR0_CSR]       /* Write LPTMR0_CSR */
+  b     End_LPTMR0_IRQHandler
+
+StopTimer:
+  /* Reset compare value */
+  ldr   r2, =LPTMR_CMR_COMPARE(100) /* Compare match on 100 ms */
+  str   r2, [r0, #LPTMR0_CMR]       /* Write LPTMR0_CMR */
+
+  ldr   r1, [r0, #LPTMR0_CSR]       /* Read register */
+  movs  r3, #LPTMR_CSR_TEN_MASK     /* Enable timer */
+  bics  r1, r1, r3                  /* LPTMR0 |= LPTMR0_CSR_TEN_MASK */
+  str   r1, [r0, #LPTMR0_CSR]       /* Write LPTMR0_CSR */
+
+  bl    StopLed
+
+  ldr   r2, =LPTMR0_Flag
+  movs  r1, 1
+  str   r1, [r2]
 
 End_LPTMR0_IRQHandler:
   pop   {PC}
@@ -220,9 +265,9 @@ End_LPTMR0_IRQHandler:
 /**
  * Drive LED with PWM.
  *
- * Registers modified: r4, r5, r6, r7
+ * Registers modified: r5, r6, r7
  *
- * Argument:  r0
+ * Argument:  None
  * Return:    None
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
@@ -236,6 +281,29 @@ DriveLed:
   ldr   r5, [r6, #TPM_SC]           /* Load TPM_SC value */
   orrs  r5, r5, r7                  /* Select clock mode enabling TPM */
   str   r5, [r6, #TPM_SC]           /* Start PWM */
+
+  bx    LR
+
+  
+/**
+ * Stop driving LED with PWM.
+ *
+ * Registers modified: r5, r6, r7
+ *
+ * Argument:  None
+ * Return:    None
+ */
+  .eabi_attribute Tag_ABI_align_preserved, 1
+  .thumb
+  .thumb_func
+  .type DriveLed, %function
+  .global DriveLed
+StopLed:
+  ldr   r6, =TPM                    /* Load TPM base address */
+  movs  r7, #TPM_SC_CMOD(1)         /* Load mask */
+  ldr   r5, [r6, #TPM_SC]           /* Load TPM_SC value */
+  bics  r5, r5, r7                  /* Disable TPM */
+  str   r5, [r6, #TPM_SC]           /* Stop PWM */
 
   bx    LR
 
