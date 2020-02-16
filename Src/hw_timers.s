@@ -1,11 +1,6 @@
 #include "core.h"
 #include "peripherals.h"
 
-
-  .bss
-  .type   LPTMR0_Flag, %object
-  .lcomm  LPTMR0_Flag, 4
-
   .syntax unified
   .thumb
   .text
@@ -149,11 +144,6 @@ CheckFLL_Loop:
 LPTMR_Init:
   push  {LR}
 
-  /* Initialize LPTMR0_Flag flag */
-  ldr   r3, =LPTMR0_Flag
-  movs  r4, 1
-  str   r4, [r3]
-
   /* Enable LPTMR0 clock gating */
   ldr   r6, =SIM + SIM_SCGC5        /* Load SIM_SCGC5 base address */
   movs  r7, #SIM_SCGC5_LPTMR_MASK   /* Enable LPTMR0 */
@@ -189,7 +179,7 @@ LPTMR_Init:
 
 
 /**
- * LPTMR0 Interrupt Request Handler. Set interrupt flag.
+ * LPTMR0 Interrupt Request Handler. Clear interrupt flag.
  *
  * Registers modified: None
  *
@@ -212,51 +202,7 @@ LPTMR0_IRQHandler:
   bics  r2, r2, r3
   str   r2, [r0, #LPTMR0_CSR]       /* Write LPTMR0_CSR */
 
-CheckFlag: /* Check if flag set */
-  ldr   r3, =LPTMR0_Flag
-  ldr   r3, [r3]
-  movs  r2, 1
-  cmp   r3, r2
-  bne   StopTimer
-
-CheckPulse: /* Check if IRQ pulse >= 100 ms */
-  ldr   r3, =FPTD                   /* Load base address */
-  ldr   r3, [r3, #FPT_PDIR]         /* Read IRQ pulse state */
-  movs  r2, #(1 << 2)               /* Pin number to read */
-  tst   r3, r2                      /* Test FPTD_PDIR & FPTD2 */
-  beq   End_LPTMR0_IRQHandler
-
-  /* Led on if IRQ source is sensor pulse */
-  bl    DriveLed                    /* LED on */
-  ldr   r3, =LPTMR0_Flag
-  movs  r1, 0
-  str   r1, [r3]                    /* Update flag */
-
-  /* Start LED timer */
-  ldr   r2, =LPTMR_CMR_COMPARE(5000)/* Compare match on 5 s */
-  str   r2, [r0, #LPTMR0_CMR]       /* Write LPTMR0_CMR */
-
-  ldr   r1, [r0, #LPTMR0_CSR]       /* Read register */
-  movs  r3, #LPTMR_CSR_TEN_MASK     /* Enable timer */
-  orrs  r1, r1, r3                  /* LPTMR0 |= LPTMR0_CSR_TEN_MASK */
-  str   r1, [r0, #LPTMR0_CSR]       /* Write LPTMR0_CSR */
-  b     End_LPTMR0_IRQHandler
-
-StopTimer:
-  /* Reset compare value */
-  ldr   r2, =LPTMR_CMR_COMPARE(100) /* Compare match on 100 ms */
-  str   r2, [r0, #LPTMR0_CMR]       /* Write LPTMR0_CMR */
-
-  ldr   r1, [r0, #LPTMR0_CSR]       /* Read register */
-  movs  r3, #LPTMR_CSR_TEN_MASK     /* Enable timer */
-  bics  r1, r1, r3                  /* LPTMR0 |= LPTMR0_CSR_TEN_MASK */
-  str   r1, [r0, #LPTMR0_CSR]       /* Write LPTMR0_CSR */
-
   bl    StopLed
-
-  ldr   r2, =LPTMR0_Flag
-  movs  r1, 1
-  str   r1, [r2]
 
 End_LPTMR0_IRQHandler:
   pop   {PC}

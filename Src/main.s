@@ -14,7 +14,7 @@
   .type _start, %function
   .global _start
 _start:
-  dsb                         /* Wait until all outstanding memory accesses completed */
+  dsb                          /* Wait until all outstanding memory accesses completed */
   cpsid i                     /* Set PRIMASK */
 
   bl    SystemInit

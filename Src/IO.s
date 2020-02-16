@@ -4,12 +4,6 @@
   .syntax unified
   .thumb
 
-  .data
-  .align 4
-  .global PORTD_IRQFlag
-PORTD_IRQFlag:
-  .word 0
-
 
   .text
 
@@ -108,22 +102,35 @@ PollButtonLoop:
   .type PORTD_IRQHandler, %function
   .global PORTD_IRQHandler
 PORTD_IRQHandler:
-  /* Clear interrupt flag */
-  ldr   r0, =PORTD + PORT_ISFR    /* Load address */
-  ldr   r1, =PORT_ISFR_ISF(4)     /* Load mask */
-  ldr   r2, [r0]                  /* Load PORTD_ISFR value */
-  tst   r2, r1
-  beq   PORTD_IRQHandler_End      /* If flag == zero => goto end */
-  str   r1, [r0]                  /* Clear pending interrupts in peripheral */
+  push  {LR}
 
-  /* Start LPTMR0 to measure pulse width */
-  ldr   r4, =LPTMR0
-  movs  r3, #(LPTMR_CSR_TEN_MASK  /* Enable LTPMR0 */     \
-            | LPTMR_CSR_TIE_MASK) /* Enable interrupts */
-  str   r3, [r4, #LPTMR0_CSR]
+  /* Clear interrupt flag */
+  ldr   r0, =PORTD + PORT_ISFR        /* Load address */
+  ldr   r1, =PORT_ISFR_ISF(4)         /* Load mask */
+  ldr   r2, [r0]                      /* Load PORTD_ISFR value */
+  tst   r2, r1
+  beq   PORTD_IRQHandler_End          /* If flag == zero => goto end */
+  str   r1, [r0]                      /* Clear pending interrupts in peripheral */
+
+  /* Stop timer to allow modifying register */
+  ldr   r0, =LPTMR0                   /* Load Low Power Timer 0 base address */
+  ldr   r1, [r0, #LPTMR0_CSR]         /* Read register */
+  movs  r3, #(LPTMR_CSR_TEN_MASK \
+            | LPTMR_CSR_TIE_MASK)
+  bics  r1, r1, r3                    /* Disable LPTMR0 and interrupt */
+  str   r1, [r0, #LPTMR0_CSR]         /* Write LPTMR0_CSR */
+
+  /* Write new timer value and start LED timer */
+  ldr   r2, =LPTMR_CMR_COMPARE(5000)  /* Compare match on 5s */
+  ldr   r1, [r0, #LPTMR0_CSR]         /* Read register */
+  str   r2, [r0, #LPTMR0_CMR]         /* Write LPTMR0_CMR */
+  orrs  r1, r1, r3                    /* Enable timer & interrupt */
+  str   r1, [r0, #LPTMR0_CSR]         /* Write LPTMR0_CSR */
+
+  bl    DriveLed
 
 PORTD_IRQHandler_End:
-  bx    LR
+  pop   {PC}
 
 
   .end
