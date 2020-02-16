@@ -153,7 +153,7 @@ extern "C" {
          Bus clock  = 24MHz
  */
 
-#define CLOCK_SETUP 1
+#define CLOCK_SETUP 2
 
 /* Define clock source values */
 

@@ -7,124 +7,6 @@
 
 
 /**
- * Initialize MCG.
- *
- * Registers modified: r2, r3, r4, r5, r6, r7
- *
- * Argument:  None
- * Return:    None
- */
-  .eabi_attribute Tag_ABI_align_preserved, 1
-  .thumb
-  .thumb_func
-  .type MCG_Init, %function
-  .global MCG_Init
-MCG_Init:
-  push  {LR}
-
-  /* Reset system prescalers */
-  movs  r4, #0                        /* Reset value */
-  ldr   r5, =SIM + SIM_CLKDIV1        /* Load address */
-  ldr   r0, =MCG                      /* Load MCG base address */
-  str   r4, [r5]                      /* Write SIM_CLKDIV1 */
-
-  /* Switch to FBI mode */
-  ldr   r6, =(MCG_C1_CLKS(0x01)       /* Output of Internal Reference CLock */\
-            | MCG_C1_FRDIV(0x00)      /* FLL External Reference Divider 0 */  \
-            | MCG_C1_IREFS_MASK       /* Slow internal  reference clock */    \
-            | MCG_C1_IRCLKEN_MASK)    /* MCGIRCLK active */
-
-  ldrb  r7, [r0, #MCG_C2]             /* Load MCG_C2 value */
-  strb  r6, [r0, #MCG_C1]             /* Write to MCG_C1 */
-
-  /* Disable the following options: */
-  ldr   r4, =~(MCG_C2_LOCRE0_MASK     /* Internal reference clock */                              \
-            | MCG_C2_RANGE0(0x03)     /* Very high frequency range for the crystal oscillator */  \
-            | MCG_C2_HGO0_MASK        /* High-gain oscillator mode */                             \
-            | MCG_C2_EREFS0_MASK      /* Oscillator requested reference select */                 \
-            | MCG_C2_LP_MASK)         /* FLL disabled in bypass modes */
-  /* Enable option: */
-  ldr   r5, =MCG_C2_IRCS_MASK         /* Fast internal reference clock */
-  ands  r7, r7, r4
-  orrs  r7, r7, r5
-
-  /* Reset DCO settings */
-  ldr   r4, =~(MCG_C4_DMX32_MASK \
-            | MCG_C4_DRST_DRS(0x03))
-  ldrb  r5, [r0, #MCG_C4]             /* Load MCG_C4 value */
-  strb  r7, [r0, #MCG_C2]             /* Write mask to MCG_C2 */
-  ands  r5, r5, r4
-
-  /* Configure Oscillator module */
-  ldr   r6, =OSC0                     /* Load OSC0 base address */
-  movs  r4, #OSC_CR_ERCLKEN_MASK      /* Enable external reference clock */
-  strb  r5, [r0, #MCG_C4]             /* Write mask to MCG_C4 */
-  strb  r4, [r6, #OSC0_CR]            /* Write OSC0_CR */
-
-  bl    CheckFLL
-
-  /*  Wait until internal reference clock is selected as MCG output */
-  movs  r4, #MCG_S_CLKST(2)           /* External reference clock selected */
-  movs  r5, #(MCG_S_OSCINIT0_MASK     /* Wait until crystal oscillator initialized */ \
-            | MCG_S_IRCST_MASK)       /* Internal reference clock sourced by fast clock (4 MHz IRC) */
-WaitMCGOutput:
-  ldrb  r6, [r0, #MCG_S]              /* Refresh MCG_S value */
-  ands  r6, r6, r4
-  tst   r6, r5
-  bne   WaitMCGOutput                 /* MCG_S & MCG_S_CLKST(2) != MCG_S_OSCINIT0_MASK | MCG_S_IRCST_MASK */
-
-  /* Switch to BLPI mode */
-  ldrb  r4, [r0, #MCG_C2]             /* Load MCG_C2 value */
-  /* Disable the following options: */
-  ldr   r5, =~(MCG_C2_LOCRE0_MASK     /* Internal reference clock */                              \
-            | MCG_C2_RANGE0(0x03)     /* Very high frequency range for the crystal oscillator */  \
-            | MCG_C2_HGO0_MASK        /* High-gain oscillator mode */                             \
-            | MCG_C2_EREFS0_MASK)     /* Oscillator requested reference select */
-  /* Enable options: */
-  movs  r6, #(MCG_C2_IRCS_MASK        /* Fast internal reference clock */                         \
-            | MCG_C2_LP_MASK)         /* FLL disabled in bypass modes */
-  ands  r4, r4, r5
-  orrs  r4, r4, r6
-  strb  r4, [r0, #MCG_C2]             /* Write MCG_C2 */
-  
-  bl    CheckFLL
-
-  /* Check that the fast external reference clock is selected. */
-  /* r5: MCG_S address */
-  movs  r4, #MCG_S_IREFST_MASK
-CheckExtClk:
-  ldrb  r5, [r0, #MCG_S]              /* Load MCG_S value */
-  tst   r5, r4
-  beq   CheckExtClk
-
-  pop   {PC}
-
-
-/**
- * Check that FLL reference clock source is the internal reference clock.
- *
- * Registers modified: r6, r7
- *
- * Argument:  r0  - MCG base address
- * Return:    None
- */
-  .eabi_attribute Tag_ABI_align_preserved, 1
-  .thumb
-  .text
-  .thumb_func
-  .type CheckFLL, %function
-CheckFLL:
-  movs  r6, #MCG_S_IREFST_MASK
-
-CheckFLL_Loop:
-  ldrb  r7, [r0, #MCG_S]
-  tst   r7, r6
-  beq   CheckFLL_Loop
-
-  bx    LR
-
-
-/**
  * Initialize Low Power Timer module. It is used to
  * measure Motion Senser trigger pulse duration.
  * 100 ms pulse is recognized as movement.
@@ -295,8 +177,8 @@ TPM_Init:
   /* Set clock source for TPM */
   ldr   r6, =TPM                    /* Load TPM base address */
   subs  r7, r7, #0x38               /* Decremement r7 to SIM_SOPT2 */
-  ldr   r5, =SIM_SOPT2_TPMSRC(1) |  /* MCGFLLCLK as clock source */ \
-            SIM_SOPT2_PLLFLLSEL_MASK/* MCGPLLCLK clock with fixed divide by tw */
+  ldr   r5, =SIM_SOPT2_TPMSRC(2) |  /* OSCERCLK as clock source */ \
+            SIM_SOPT2_PLLFLLSEL_MASK/* MCGPLLCLK clock with fixed divide by two */
   ldr   r4, =5000                   /* Load immediate value */
   str   r5,  [r7]                   /* Write SIM_SOPT2 */
 

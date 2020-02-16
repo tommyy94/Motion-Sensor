@@ -14,20 +14,21 @@
   .type _start, %function
   .global _start
 _start:
-  dsb                          /* Wait until all outstanding memory accesses completed */
+  dsb   sy                    /* Use memory barrier */
   cpsid i                     /* Set PRIMASK */
 
   bl    SystemInit
   bl    PORTD_Init
   bl    TPM_Init
   bl    LPTMR_Init
+  bl    CMP0_Init
 
   bl    PollButton            /* To prevent lockout */
 
   cpsie i                     /* Clear PRIMASK */
 
 loop:
-  dsb                         /* Wait until all outstanding memory accesses completed */
+  dsb   sy                    /* Use memory barrier */
   wfi                         /* Set sleep mode */
   b     loop
 
