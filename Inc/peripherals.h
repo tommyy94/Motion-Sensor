@@ -388,9 +388,9 @@
 #define CMP_CR0_HYSTCTR_SHIFT                    (0)
 #define CMP_CR0_HYSTCTR_WIDTH                    (2)
 #define CMP_CR0_HYSTCTR(x)                       ((((x)<<CMP_CR0_HYSTCTR_SHIFT))&CMP_CR0_HYSTCTR_MASK)
-#define CMP_CR0_FILTER_CNT_MASK                  (0x70u
-#define CMP_CR0_FILTER_CNT_SHIFT                 (4
-#define CMP_CR0_FILTER_CNT_WIDTH                 (3
+#define CMP_CR0_FILTER_CNT_MASK                  (0x70u)
+#define CMP_CR0_FILTER_CNT_SHIFT                 (4)
+#define CMP_CR0_FILTER_CNT_WIDTH                 (3)
 #define CMP_CR0_FILTER_CNT(x)                    ((((x)<<CMP_CR0_FILTER_CNT_SHIFT))&CMP_CR0_FILTER_CNT_MASK)
 #define CMP_CR1_EN_MASK                          (0x1u)
 #define CMP_CR1_EN_SHIFT                         (0)

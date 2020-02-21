@@ -29,19 +29,20 @@ CMP0_Init:
   str   r5, [r4]                    /* Enable CMP0 */
 
   ldr   r5, =CMP0
-  movs  r4, #CMP_CR0_HYSTCTR(1)     /* Hysteresis level 1 */
+  movs  r4, #(CMP_CR0_HYSTCTR(1)    /* Hysteresis level 1 */          \
+            | CMP_CR0_FILTER_CNT(7))/* 7 consecutive samples must agree */
   strb  r4, [r5, #CMP0_CR0]
   
   movs  r6, #CMP_CR1_EN(1)          /* Enable comparator */
   strb  r6, [r5, #CMP0_CR1]
 
-  movs  r4, #(CMP_MUXCR_PSEL(5)     /* Input channel 4 (PORTE30) */   \
+  movs  r4, #(CMP_MUXCR_PSEL(4)     /* Input channel 4 (PORTE30) */   \
             | CMP_MUXCR_MSEL(7))    /* DAC channel  7 (internally) */
   strb  r4, [r5, #CMP0_MUXCR]
 
   movs  r6, #(CMP_DACCR_DACEN(1)    /* Enable 6-bit DAC */            \
-            | CMP_DACCR_VOSEL(6))   /* Set reference voltage at 0.3V => 64 * 0.3V / 3.3V = 6 */
-  strb  r4, [r5, #CMP0_DACCR]
+            | CMP_DACCR_VOSEL(0x1F))/* Set reference voltage at 0.3V => 64 * 0.3V / 3.3V = 6 */
+  strb  r6, [r5, #CMP0_DACCR]
 
   movs  r4, #CMP_SCR_IEF(1)         /* Interrupt on falling edge */
   strb  r4, [r5, #CMP0_SCR]
@@ -78,19 +79,26 @@ CMP0_IRQHandler:
   ldrb  r1, [r0]                      /* Load CM0_SCR value */
 
 CMP0_IRQHandler_CheckCFF:
-  movs  r2, #CMP_SCR_CFF(1)           /* Detect on falling edge */
+  movs  r2, #(CMP_SCR_CFF(1)          /* Detect on falling edge */ \
+            | CMP_SCR_IEF(1))         /* Check IRQ source */
   tst   r1, r2
   beq   CMP0_IRQHandler_CheckCFR      /* If flag == zero => check CFR */
-  movs  r2, #CMP_SCR_CFR(1)           /* Detect on rising edge */
+  movs  r2, #(CMP_SCR_CFR(1)          /* Detect on rising edge */ \
+            | CMP_SCR_IER(1))         /* Interrupt on rising edge */
   b     CMP0_IRQHandler_End           /* Else go to end */
 
 CMP0_IRQHandler_CheckCFR:
-  movs  r2, #CMP_SCR_CFR(1)           /* Detect on rising edge */
+  movs  r2, #(CMP_SCR_CFR(1)          /* Detect on rising edge */ \
+            | CMP_SCR_IER(1))         /* Check IRQ source */
   tst   r1, r2
   beq   CMP0_IRQHandler_End
-  movs  r2, #CMP_SCR_CFF(1)           /* Load mask */
+  movs  r2, #(CMP_SCR_CFF(1)          /* Load mask */ \
+            | CMP_SCR_IEF(1))         /* Interrupt on falling edge */
 
 CMP0_IRQHandler_End:
+  movs  r1, #(CMP_SCR_CFF(1)          /* Clear falling flag */ \
+            | CMP_SCR_CFR(1))         /* Clear rising flag */
+  orrs  r2, r2, r1
   strb  r2, [r0]                      /* Clear pending interrupts in peripheral */
   bx    LR
 
