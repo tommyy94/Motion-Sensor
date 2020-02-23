@@ -30,21 +30,22 @@ CMP0_Init:
 
   ldr   r5, =CMP0
   movs  r4, #(CMP_CR0_HYSTCTR(1)    /* Hysteresis level 1 */          \
-            | CMP_CR0_FILTER_CNT(7))/* 7 consecutive samples must agree */
+            | CMP_CR0_FILTER_CNT(1))/* 7 consecutive samples must agree */
   strb  r4, [r5, #CMP0_CR0]
   
   movs  r6, #CMP_CR1_EN(1)          /* Enable comparator */
   strb  r6, [r5, #CMP0_CR1]
 
   movs  r4, #(CMP_MUXCR_PSEL(4)     /* Input channel 4 (PORTE30) */   \
-            | CMP_MUXCR_MSEL(7))    /* DAC channel  7 (internally) */
+            | CMP_MUXCR_MSEL(7))    /* DAC channel 7 (internally) */
   strb  r4, [r5, #CMP0_MUXCR]
 
   movs  r6, #(CMP_DACCR_DACEN(1)    /* Enable 6-bit DAC */            \
-            | CMP_DACCR_VOSEL(0x1F))/* Set reference voltage at 0.3V => 64 * 0.3V / 3.3V = 6 */
+            | CMP_DACCR_VOSEL(0x1F))   /* Set reference voltage at 0.3V => 64 * 0.3V / 3.3V = 6 */
   strb  r6, [r5, #CMP0_DACCR]
 
-  movs  r4, #CMP_SCR_IEF(1)         /* Interrupt on falling edge */
+  movs  r4, #(CMP_SCR_IEF(1)        /* Interrupt on falling edge */   \
+            | CMP_SCR_IER(1))       /* Interrupt on rising edge */
   strb  r4, [r5, #CMP0_SCR]
 
   /**
@@ -74,32 +75,30 @@ CMP0_Init:
   .type CMP0_IRQHandler, %function
   .global CMP0_IRQHandler
 CMP0_IRQHandler:
-  /* Clear interrupt flag */
   ldr   r0, =CMP0 + CMP0_SCR          /* Load address */
   ldrb  r1, [r0]                      /* Load CM0_SCR value */
 
 CMP0_IRQHandler_CheckCFF:
-  movs  r2, #(CMP_SCR_CFF(1)          /* Detect on falling edge */ \
-            | CMP_SCR_IEF(1))         /* Check IRQ source */
-  tst   r1, r2
+  movs  r2, #CMP_SCR_CFF(1)           /* Check if falling edge IRQ */
+  ands  r2, r1
   beq   CMP0_IRQHandler_CheckCFR      /* If flag == zero => check CFR */
-  movs  r2, #(CMP_SCR_CFR(1)          /* Detect on rising edge */ \
-            | CMP_SCR_IER(1))         /* Interrupt on rising edge */
-  b     CMP0_IRQHandler_End           /* Else go to end */
+  ldr   r3, =PORT_PCR_MUX(1)          /* Else disable motion sensor */
+  b     CMP0_IRQHandler_End           /* and end handler */
 
 CMP0_IRQHandler_CheckCFR:
-  movs  r2, #(CMP_SCR_CFR(1)          /* Detect on rising edge */ \
-            | CMP_SCR_IER(1))         /* Check IRQ source */
-  tst   r1, r2
+  movs  r2, #CMP_SCR_CFR(1)           /* Check if rising edge IRQ */
+  ands  r2, r1
   beq   CMP0_IRQHandler_End
-  movs  r2, #(CMP_SCR_CFF(1)          /* Load mask */ \
-            | CMP_SCR_IEF(1))         /* Interrupt on falling edge */
+  ldr   r3, =(PORT_PCR_MUX(1)         /* Enable motion sensor */            \
+            | PORT_PCR_IRQC(9))
 
 CMP0_IRQHandler_End:
-  movs  r1, #(CMP_SCR_CFF(1)          /* Clear falling flag */ \
-            | CMP_SCR_CFR(1))         /* Clear rising flag */
-  orrs  r2, r2, r1
-  strb  r2, [r0]                      /* Clear pending interrupts in peripheral */
+  ldr   r2, =PORTD                    /* Load address */
+  strb  r1, [r0]                      /* Clear pending IRQ */
+  str   r3, [r2, #PORT_PCR            /* Enable/disable motion sensor */    \
+                + (2 * 0x04)]
+
   bx    LR
+
 
   .end
