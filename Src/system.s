@@ -105,12 +105,4 @@ Sleep_Init:
   bx    lr
 
 
-  .eabi_attribute Tag_ABI_align_preserved, 1
-  .thumb_func
-  .type Sleep_Init, %function
-  .global Sleep_Init
-LLW_IRQHandler:
-  bkpt
-  bx    lr
-
   .end
