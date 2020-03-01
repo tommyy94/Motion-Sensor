@@ -40,8 +40,8 @@
       <file file_name="Src/IO.s" />
       <file file_name="Src/hw_timers.s" />
       <file file_name="Src/system.s" />
-      <file file_name="system_MKL25Z4.c" />
-      <file file_name="analog.s" />
+      <file file_name="Src/system_MKL25Z4.c" />
+      <file file_name="Src/analog.s" />
     </folder>
     <folder Name="System Files">
       <configuration
