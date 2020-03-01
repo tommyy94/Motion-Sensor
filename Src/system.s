@@ -8,27 +8,6 @@
 
 
 /**
- * Disable Computer Operating Properly aka
- * Watchdog Timer to avoid reset loop.
- *
- * Registers modified: r4, r5
- *
- * Argument:  None
- * Return:    None
- */
-  .eabi_attribute Tag_ABI_align_preserved, 1
-  .thumb
-  .thumb_func
-  .type COP_Disable, %function
-  .global COP_Disable
-COP_Disable:
-  ldr   r4, =SIM + SIM_COPC       /* Load address to register */
-  movs  r5, #0                    /* Clear register */
-  str   r5, [r4]                  /* Write 0 SIM + COPC offset */
-  bx    LR
-
-
-/**
  * Initialize Low Power features.
  *
  * Registers modified: r4, r5, r6, r7
@@ -94,5 +73,44 @@ WaitVLPR:
 
   bx    lr
 
+  
+/**
+ * Initialize sleep mode. Enable deep sleep
+ * and use sleep-on-exit mode as the application
+ * is interrupt driven.
+ *
+ * Registers modified: r4, r5, r6, r7
+ *
+ * Argument:  None
+ * Return:    None
+ */
+  .eabi_attribute Tag_ABI_align_preserved, 1
+  .thumb_func
+  .type Sleep_Init, %function
+  .global Sleep_Init
+Sleep_Init:
+  ldr   r3, =SCB
+  movs  r4, #(SCB_SCR_SLEEPONEXIT_Msk \
+            | SCB_SCR_SLEEPDEEP_Msk)
+  str   r4, [r3, #SCB_SCR]
+
+  ldr   r3, =SMC
+  movs  r4, #SMC_PMCTRL_STOPM(3)        /* Enable Low-Leakage Stop Mode */
+  strb  r4, [r3, #SMC_PMCTRL]
+
+  ldr   r3, =LLWU
+  movs  r4, #LLWU_ME_WUME5(1)           /* Wakeup source on module 5 */
+  strb  r4, [r3, #LLWU_ME]
+
+  bx    lr
+
+
+  .eabi_attribute Tag_ABI_align_preserved, 1
+  .thumb_func
+  .type Sleep_Init, %function
+  .global Sleep_Init
+LLW_IRQHandler:
+  bkpt
+  bx    lr
 
   .end

@@ -22,15 +22,13 @@ _start:
   bl    TPM_Init
   bl    LPTMR_Init
   bl    CMP0_Init
+  bl    Sleep_Init
 
   bl    PollButton            /* To prevent lockout */
 
   cpsie i                     /* Clear PRIMASK */
 
-loop:
   dsb   sy                    /* Use memory barrier */
   wfi                         /* Set sleep mode */
-  b     loop
-
-
+ 
   .end
