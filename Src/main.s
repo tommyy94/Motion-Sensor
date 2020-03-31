@@ -22,7 +22,8 @@ _start:
   bl    TPM_Init
   bl    LPTMR_Init
   bl    CMP0_Init
-  bl    Sleep_Init
+  //bl    Sleep_Init
+  bl    LP_Init
 
   bl    PollButton            /* To prevent lockout */
 

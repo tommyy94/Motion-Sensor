@@ -165,7 +165,7 @@ extern "C" {
 
 /* Low power mode enable */
 /* SMC_PMPROT: AVLP=1,ALLS=1,AVLLS=1 */
-#define SYSTEM_SMC_PMPROT_VALUE        0x28U               /* SMC_PMPROT */
+#define SYSTEM_SMC_PMPROT_VALUE        0x2AU               /* SMC_PMPROT */
 
 /* Internal reference clock trim */
 /* #undef SLOW_TRIM_ADDRESS */                             /* Slow oscillator not trimmed. Commented out for MISRA compliance. */

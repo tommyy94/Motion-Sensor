@@ -53,7 +53,7 @@
     <folder Name="Include Files">
       <file file_name="Inc/peripherals.h" />
       <file file_name="Inc/core.h" />
-      <file file_name="system_MKL25Z4.h" />
+      <file file_name="Inc/system_MKL25Z4.h" />
     </folder>
     <folder Name="Script Files">
       <file file_name="Kinetis_KL/Scripts/Kinetis_KL_Target.js">

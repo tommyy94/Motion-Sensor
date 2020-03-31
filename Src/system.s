@@ -14,7 +14,6 @@
  *
  * Argument:  None
  * Return:    None
- * Todo:      VLPR not working, maybe lower system clock frequency is needed
  */
   .eabi_attribute Tag_ABI_align_preserved, 1
   .thumb_func
@@ -97,6 +96,9 @@ Sleep_Init:
   ldr   r3, =SMC
   movs  r4, #SMC_PMCTRL_STOPM(3)        /* Enable Low-Leakage Stop Mode */
   strb  r4, [r3, #SMC_PMCTRL]
+
+  ldr   r3, =SMC
+  ldr   r3, [r3]
 
   ldr   r3, =LLWU
   movs  r4, #LLWU_ME_WUME5(1)           /* Wakeup source on module 5 */

@@ -41,7 +41,7 @@ CMP0_Init:
   strb  r4, [r5, #CMP0_MUXCR]
 
   movs  r6, #(CMP_DACCR_DACEN(1)    /* Enable 6-bit DAC */            \
-            | CMP_DACCR_VOSEL(0x1F))   /* Set reference voltage at 0.3V => 64 * 0.3V / 3.3V = 6 */
+            | CMP_DACCR_VOSEL(0x1F))/* Set reference voltage at 0.3V => 64 * 0.3V / 3.3V = 6 */
   strb  r6, [r5, #CMP0_DACCR]
 
   movs  r4, #(CMP_SCR_IEF(1)        /* Interrupt on falling edge */   \
