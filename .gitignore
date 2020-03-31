@@ -1,3 +1,7 @@
 /Output
 *.emSession
 *.jlink
+*.bak
+*-rescue*
+*-cache
+*.user
